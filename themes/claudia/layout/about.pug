@@ -10,9 +10,6 @@ block content
             .column.is-3.is-hidden-mobile(class= tocContent.length < 1 && 'is-hidden')!= tocContent
             .column.is-9
                 section.is-flex.is-flex-direction-column.is-justify-content-center
-                    // 添加 me.webp 圖片
-                    .about-cover-image
-                        img(src= url_for('/about/me.webp') alt='About Me Cover')
                     h2.about-title= __('about')
                     article!= page.content
 //- block append script
