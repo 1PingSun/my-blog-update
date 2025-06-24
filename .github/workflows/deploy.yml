@@ -20,25 +20,35 @@ jobs:
     - name: Checkout 🛎️
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 獲取完整的 git 歷史，避免 lastmod 問題
-        submodules: false  # 停用 submodule 檢查
+        fetch-depth: 0
+        clean: true
+        persist-credentials: false
 
     - name: Setup Node.js 📦
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
 
     - name: Install Dependencies 🔧
-      run: npm ci
+      run: |
+        npm ci
+        echo "Dependencies installed successfully"
+        ls -la node_modules/hexo/
 
     - name: Build Hexo 🔨
       run: |
+        echo "Starting Hexo build process..."
         npm run clean
+        echo "Clean completed"
         npm run build
+        echo "Build completed"
+        ls -la public/
+        echo "Public directory contents:"
+        find public/ -name "*.html" -exec wc -c {} \;
 
     - name: Deploy to GitHub Pages 🚀
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -47,4 +57,3 @@ jobs:
         force_orphan: true
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy from ${{ github.sha }}'
