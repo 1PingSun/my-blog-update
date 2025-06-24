@@ -2,25 +2,50 @@ name: Deploy Hexo to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]  # 當推送到 main 或 master 分支時觸發
-  pull_request:
     branches: [ main, master ]
+  workflow_dispatch:  # 允許手動執行
+    inputs:
+      reason:
+        description: '手動部署原因'
+        required: false
+        default: '手動觸發部署'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 獲取完整的 git 歷史，避免 lastmod 問題
+        fetch-depth: 0
+        submodules: false  # 停用 submodule 檢查
+
+    - name: Fix submodule issues
+      run: |
+        # 移除 git 中的 submodule 記錄
+        git rm --cached themes/claudia 2>/dev/null || true
+        # 重新添加 themes/claudia 作為普通資料夾
+        git add themes/claudia
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
 
     - name: Setup Node.js 📦
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
 
     - name: Install Dependencies 🔧
       run: npm ci
@@ -30,14 +55,18 @@ jobs:
         npm run clean
         npm run build
 
-    - name: Deploy to GitHub Pages 🚀
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public
-        publish_branch: gh-pages
-        force_orphan: true
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy from ${{ github.sha }}'
+        path: ./public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
