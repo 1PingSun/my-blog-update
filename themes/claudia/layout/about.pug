@@ -1,0 +1,17 @@
+extends widget/base
+
+block append head
+    link(rel='stylesheet' href= url_for('/style/about.css'))
+
+block content
+    - var tocContent = toc(page.content, {list_number: false, max_depth: 6, min_depth: 1})
+    main.container.is-max-widescreen.content.section.about-page.pt-4.px-4
+        .columns.is-flex-desktop.is-justify-content-center.is-flex-direction-row-reverse
+            .column.is-3.is-hidden-mobile(class= tocContent.length < 1 && 'is-hidden')!= tocContent
+            .column.is-9
+                section.is-flex.is-flex-direction-column.is-justify-content-center
+                    h2.about-title= __('about')
+                    article!= page.content
+//- block append script
+//-     script.
+//-         $claudia.fadeInImage()
