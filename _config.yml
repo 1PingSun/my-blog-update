@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle: ''
-description: ''
-keywords:
-author: John Doe
-language: en
-timezone: ''
+title: 1Ping's Blog
+subtitle: '資安 | 創客 | 程式設計'
+description: '孫逸平的個人部落格，分享資訊安全、創客專案、程式設計與技術心得。臺北市數位實驗高中學生，專精於網路安全、CTF競賽和技術開發。'
+keywords: '1Ping, 孫逸平, 資訊安全, 網路安全, CTF, 創客, 程式設計, cybersecurity, maker, programming'
+author: 1Ping
+language: zh-TW
+timezone: 'Asia/Taipei'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://1ping.org
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -45,13 +45,14 @@ relative_link: false
 future: true
 syntax_highlighter: highlight.js
 highlight:
+  enable: true
   line_number: true
-  auto_detect: false
+  auto_detect: true
   tab_replace: ''
   wrap: true
   hljs: false
 prismjs:
-  preprocess: true
+  preprocess: false
   line_number: true
   tab_replace: ''
 
@@ -80,7 +81,7 @@ meta_generator: true
 date_format: YYYY-MM-DD
 time_format: HH:mm:ss
 ## updated_option supports 'mtime', 'date', 'empty'
-updated_option: 'mtime'
+updated_option: 'date'
 
 # Pagination
 ## Set per_page to 0 to disable pagination
@@ -96,9 +97,16 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: claudia
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+
+# Sitemap
+sitemap:
+  path: sitemap.xml
+  rel: false
+  tags: true
+  categories: true
