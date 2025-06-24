@@ -4,6 +4,11 @@ block append head
     link(rel='stylesheet', href= url_for("/style/widget-post-list.css"))
 
 block content
+    // 手機版 Profile Widget（顯示在頂部）
+    if theme.widgets.includes('profile')
+        div.is-hidden-tablet.mobile-profile-container.mb-4
+            include widget/widget-profile-mobile
+    
     include widget/widget-post-list
         block sidebar
             include widget/widget-search

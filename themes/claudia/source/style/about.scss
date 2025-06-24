@@ -18,6 +18,28 @@ $lineColor: var(--border-line-color);
     font-weight: normal;
   }
 
+  // About page cover image
+  .about-cover-image {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: $borderRadius;
+    box-shadow: $boxShadow;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+  }
+
   .toc {
     position: sticky;
     top: 60px;

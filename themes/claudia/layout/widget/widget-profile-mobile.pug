@@ -1,0 +1,23 @@
+main.aside-card-container.profile-widget.mobile-profile
+    section.is-flex.is-align-items-center
+    
+        section.avatar-section
+            section.is-flex.is-justify-content-center.avatar.is-clipped(class= theme.user && theme.user.avatar && 'skeleton')
+                if (theme.user && theme.user.avatar)
+                    img.js-img-fadeIn(src= url_for(theme.user.avatar) alt="user avatar")
+                else
+                    div.avatar-placeholder
+        
+        if (theme.user)
+            section.user-info-section
+                h3.user-name= theme.user.name || config.author || ''
+                if theme.user.description
+                    blockquote.user-description
+                        span= theme.user.description
+                if (theme.user.location)
+                    address.user-location.has-text-grey
+                        i.iconfont.icon-location
+                        span.has-text-grey= theme.user.location
+                // 社交媒體連結
+                section.sns-container.is-flex.is-align-items-center
+                    include widget-sns
