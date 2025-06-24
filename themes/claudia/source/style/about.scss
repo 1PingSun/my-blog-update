@@ -38,6 +38,12 @@ $lineColor: var(--border-line-color);
         transform: scale(1.02);
       }
     }
+
+    // 手機版響應式設計
+    @media screen and (max-width: 768px) {
+      height: 200px;
+      margin-bottom: 15px;
+    }
   }
 
   .toc {
