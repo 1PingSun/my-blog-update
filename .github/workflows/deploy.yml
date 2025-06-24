@@ -21,6 +21,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # 獲取完整的 git 歷史，避免 lastmod 問題
+        submodules: false  # 停用 submodule 檢查
 
     - name: Setup Node.js 📦
       uses: actions/setup-node@v4
