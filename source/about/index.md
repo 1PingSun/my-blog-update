@@ -65,7 +65,7 @@ If you're interested in my experiences or have any questions, feel free to email
 ### Certificate / Verification
 
 - 2025 Certified Ethical Hacker (C|EH <sup>AI</sup> )
-- 2025 iPAS 資訊安全工程師-初級能力鑑定
+- 2025 iPAS 初級資訊安全工程師能力鑑定
 - 2024 臺北市街頭藝人證
 - 2024 Cisco Certified Support Technician Cybersecurity
 - 2024 ITS Cybersecurity
