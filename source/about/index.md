@@ -54,7 +54,7 @@ If you're interested in my experiences or have any questions, feel free to email
 - 2023 IEYI 發明展世界賽 @ 銀牌
 - 2022 IEYI 發明展世界賽 @ 金牌
 - 2022 AMC8 @ PR 99
-- 2021 國際運算思維挑戰賽 PR 98
+- 2021 國際運算思維挑戰賽 @ PR 98
 
 ### Work
 
@@ -67,7 +67,7 @@ If you're interested in my experiences or have any questions, feel free to email
 - 2025 Certified Ethical Hacker (C|EH <sup>AI</sup> )
 - 2025 iPAS 初級資訊安全工程師能力鑑定
 - 2024 臺北市街頭藝人證
-- 2024 Cisco Certified Support Technician Cybersecurity
+- 2024 Cisco Certified Support Technician Cybersecurity (Cisco CCST Cybersecurity)
 - 2024 ITS Cybersecurity
 - 2024 BLS-I 基本救命術指導員
 - 2023 EMT-1 初級救護技術員
