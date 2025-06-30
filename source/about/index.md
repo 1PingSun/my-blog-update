@@ -6,7 +6,7 @@ layout: about
 
 ## 自我介紹 | About Me
 
-我是孫逸平，也可以加我 1Ping，名字跟國父孫逸仙先生只差一個字。目前就讀臺北市數位實驗高中，專長領域涵蓋資安、創客、急救、烏克麗麗和吉他等。
+我是孫逸平，也可以叫我 1Ping，名字跟國父孫逸仙先生只差一個字。目前就讀臺北市數位實驗高中，專長領域涵蓋資安、創客、急救、烏克麗麗和吉他等。
 
 My name is Sun Yi-Ping. I am a student at Taipei Digital Experimental High School. My expertise includes cybersecurity, maker culture, emergency medical services, ukulele, and guitar.
 
