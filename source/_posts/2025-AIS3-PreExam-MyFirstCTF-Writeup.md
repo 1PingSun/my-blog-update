@@ -1,7 +1,7 @@
 ---
 title: 2025 AIS3 Pre-Exam & MyFirstCTF 心得 / Writeup
 date: 2025-07-03
-keywords: 
+keywords: AIS3, MyFirstCTF, CTF競賽, 資安競賽, Web安全, 逆向工程, Pwn, 密碼學, OSINT, 滲透測試, 網路安全, 資訊安全, Writeup, 解題報告, 程式安全, 二進制分析, 格式化字串攻擊, SQL注入, 路徑遍歷, ECDSA, WebAssembly, 陽明交通大學, Cybersecurity, CTF
 tag:
     - Cyber
     - Competition
