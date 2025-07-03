@@ -51,7 +51,7 @@ highlight:
   auto_detect: false
   tab_replace: ''
   wrap: false
-  hljs: true
+  hljs: false
 # prismjs:
 #   preprocess: false
 #   line_number: true
