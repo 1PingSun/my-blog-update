@@ -90,9 +90,12 @@ If you're interested in my experiences or have any questions, feel free to email
 
 ### Conference / Club
 
+- CYBERSEC 2025 臺灣資安大會 @ 會眾
 - 2025 舉辦高中職跨校資安社團 社團交流活動 @ 副召
-- 2024 HITCON CTF 2024 @ 場務組志工
-- 2024 教育部先進資通安全實務人才培育計畫 高中職資安教學資源與推廣中心 跨校資安社團 @ 第一屆幹部
+- HITCON CTF 2024 @ 場務組志工
+- COSCUP 2024 @ 議程組志工
+- CYBERSEC 2024 臺灣資安大會 @ 會眾
+- 教育部先進資通安全實務人才培育計畫 高中職資安教學資源與推廣中心 跨校資安社團 @ 第一屆幹部
 
 ### Zero Day
 
