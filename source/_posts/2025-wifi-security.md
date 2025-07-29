@@ -2,6 +2,8 @@
 title: 快速搞懂 Wi-Fi 安全協議：WEP、WPA、WPA2、WPA3
 date: 2025-03-01
 keywords: wifi, 無線網路, 網路安全, WEP, WPA, WPA2, WPA3, PSK, 資訊安全
+tag:
+    - Note
 ---
 
 在連線 Wi-Fi 或設定家裡的 Wi-Fi Router 時，經常在安全協議的選項看到，可以選擇 WEP、WPA、WPA2、WPA3 等。他們分別代表了什麼？又存在著哪些差異呢？這篇文章將以小白的角度，簡單的描述這些安全協議的運作原理及差異。
