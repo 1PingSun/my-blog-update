@@ -437,7 +437,7 @@ $ curl http://server/html/usr/sharejavascript/jquery-jfeed/proxy.php%3F?url=/etc
 
 為了達到自己嘗試實作的目的，我找到了在 STDiO24CTF 中的題目 [01_Confusion](https://drive.google.com/uc?id=1Ja7va0_gm2FDCf0ueVGKCIcff53Qoaew)，並成功取得 Flag，Writeup 如下：
 
-:::tip STDiO24CTF 01_Confusion Writeup
+**STDiO24CTF 01_Confusion Writeup**
 
 1. 偵查：此網站提供了一個上傳檔案的功能，雖然有限制只能上傳 jpg、png、gif 或 bmp 格式的檔案，但不會利用檔案內容作為判斷依據。
 2. 偵查：在 `default-site.conf` 中，使用了不安全的 `RewriteRule`，因此可存取 DocumentRoot 以外的其他路徑。並且在存取上傳的 Exploit 時，需要在結尾加上 `%3F.php`，使其以 PHP 進行解析執行。
@@ -450,7 +450,6 @@ $ curl http://server/html/usr/sharejavascript/jquery-jfeed/proxy.php%3F?url=/etc
     ![alt](posts/2025-Apache-Confusion-Attacks/image6.webp)
 5. 攻擊：依據原始碼 `index.php`，檔案會被上傳到路徑 `/var/www/uploads/` 中。因此存取路徑 `http://localhost:1337/var/www/uploads/Meme-688656d968aa36.47347853.gif%3F.php` 得到 Flag。
     ![alt](posts/2025-Apache-Confusion-Attacks/image7.webp)
-:::
 
 ### 二、專案
 
