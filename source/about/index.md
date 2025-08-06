@@ -75,12 +75,13 @@ If you're interested in my experiences or have any questions, feel free to email
 
 ### Course / Camp
 
+- 2025 ISIP AIS3 新型態資安實務暑期課程學員
 - 2025 Certified Ethical Hacker v13 course
-- 2025 第九屆臺灣好厲駭高階培訓學員
-- 2024 AIS3 Club 學員
-- 2024 113 年度ＡＩ助力‧安全領航：資訊安全課程研習營
-- 2023 112年 SecurityFocus Online 2023
-- 2023 AIS3 Junior 學員
+- 2025 ISIP 第九屆臺灣好厲駭高階培訓學員
+- 2024 ISIP AIS3 Club 學員
+- 2024 ISIP 113 年度ＡＩ助力‧安全領航：資訊安全課程研習營
+- 2023 ISIP 112年 SecurityFocus Online 2023
+- 2023 ISIP AIS3 Junior 新型態高中職資安課程學員
 
 ### Speech
 
