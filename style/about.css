@@ -1,0 +1,58 @@
+.about-page {
+  height: 100%;
+}
+.about-page aside img {
+  display: flex;
+  width: 100%;
+  padding: 5px;
+  object-fit: cover;
+}
+.about-page .about-title {
+  font-weight: normal;
+}
+.about-page .toc {
+  position: sticky;
+  top: 60px;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 15px;
+  height: calc(100vh - 100px);
+  overflow: auto;
+  list-style: none !important;
+  border-left: 1px solid var(--border-line-color);
+}
+.about-page .toc::-webkit-scrollbar {
+  display: none !important;
+}
+.about-page .toc ::marker {
+  display: none !important;
+}
+.about-page .toc ol li::marker,
+.about-page .toc ul li::marker {
+  display: none !important;
+}
+.about-page .toc ol li,
+.about-page .toc ul li {
+  list-style: none !important;
+}
+.about-page .toc ol, .about-page .toc ul {
+  margin-top: 5px;
+  margin-left: 15px;
+  list-style: none !important;
+  counter-reset: none !important;
+}
+.about-page .toc ol li, .about-page .toc ul li {
+  list-style: none !important;
+  list-style-type: none !important;
+  counter-increment: none !important;
+}
+.about-page .toc ol li::before, .about-page .toc ul li::before {
+  content: none !important;
+  display: none !important;
+}
+.about-page .toc ol li::marker, .about-page .toc ul li::marker {
+  display: none !important;
+}
+.about-page .toc .is-active span {
+  color: #3273dc !important;
+}

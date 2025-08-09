@@ -1,0 +1,116 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>擺脫 HackMD 圖片上傳 1MB 的限制：整合 Imgur API 到 MacOS 快速動作</title><meta name="description" content="孫逸平的個人部落格，分享資訊安全、創客專案、程式設計與技術心得。臺北市數位實驗高中學生，專精於網路安全、CTF競賽和技術開發。"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics 4 --><script async src="https://www.googletagmanager.com/gtag/js?id=G-DPPW3TCM0K"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DPPW3TCM0K');</script><!-- End Google Analytics -->
+<!-- Baidu Analytics --><!-- End Baidu Analytics --><link rel="icon" href="/img/favicon.ico"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><link rel="stylesheet" href="/style/common/jquery.fancybox.min.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="在使用 HackMD 時，如果要上傳一張圖片，當圖片超過 1MB 時，總會被告知無法上傳，然而一張螢幕截圖往往就超過 1MB，除了壓縮圖片犧牲畫質外，就沒有其他簡單又快速的方式嗎？
+筆者使用 Imgur API 搭配 MacOS 的 Automator 應用程式，打造一個快速動作，只要對圖片「點擊右鍵」&amp;gt;「快速動作」，就能把圖片自動上傳到 Imgur 並複製該圖片之 URL 到剪貼簿。Imgur API 提供每天可上傳 1250 張圖片，每張圖片最大可達 20MB，對於一般的使用而言，基本上是用不完的。
+接下來，讓筆者帶著你/妳一起進行前置設定，並享受快速動作帶來的方便性吧！
+
+
+前往 https://api.imgur.com/oauth2/addclient
+
+登入或註冊 Imgur 帳號
+
+填寫.."><meta name="keywords" content="Imgur API, MacOS, Automator, 快速動作, HackMD, 圖片上傳, quick action, automation, post, blog, 1Ping, 孫逸平"><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="1Ping's Blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">1Ping's Blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">擺脫 HackMD 圖片上傳 1MB 的限制：整合 Imgur API 到 MacOS 快速動作</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile is-hidden"></div><div class="column is-9"><header class="my-4"><a href="/tags/Project"><i class="tag post-item-tag">Project</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">擺脫 HackMD 圖片上傳 1MB 的限制：整合 Imgur API 到 MacOS 快速動作</h1><time class="has-text-grey" datetime="2025-02-28T16:00:00.000Z">2025-03-01</time><article class="mt-2 post-content"><p>在使用 HackMD 時，如果要上傳一張圖片，當圖片超過 1MB 時，總會被告知無法上傳，然而一張螢幕截圖往往就超過 1MB，除了壓縮圖片犧牲畫質外，就沒有其他簡單又快速的方式嗎？</p>
+<p>筆者使用 Imgur API 搭配 MacOS 的 Automator 應用程式，打造一個快速動作，只要對圖片「點擊右鍵」&gt;「快速動作」，就能把圖片自動上傳到 Imgur 並複製該圖片之 URL 到剪貼簿。Imgur API 提供每天可上傳 1250 張圖片，每張圖片最大可達 20MB，對於一般的使用而言，基本上是用不完的。</p>
+<p>接下來，讓筆者帶著你/妳一起進行前置設定，並享受快速動作帶來的方便性吧！</p>
+<hr>
+<ol>
+<li><p>前往 <a target="_blank" rel="noopener" href="https://api.imgur.com/oauth2/addclient">https://api.imgur.com/oauth2/addclient</a></p>
+</li>
+<li><p>登入或註冊 Imgur 帳號</p>
+</li>
+<li><p>填寫表格：</p>
+<ul>
+<li>自訂應用程式名稱</li>
+<li>選擇「OAuth 2 application without a callback URL」</li>
+<li>提供電子郵件<br> <img src="https://i.imgur.com/KwNFNRM.png"></li>
+</ul>
+</li>
+<li><p>提交後會獲得 Client ID，就是 API 金鑰</p>
+</li>
+<li><p>在 MacOS 上使用 Spotlight（cmd + 空白）搜尋「Automator」，開啟 Automator 應用程式。</p>
+</li>
+<li><p>新增一個「快速動作」檔案。<br> <img src="https://i.imgur.com/YPJQrVa.jpeg"></p>
+</li>
+<li><p>右上方各欄位分別選擇「圖片」、「任何應用程式」，並選擇自己想要的圖示。<br> <img src="https://i.imgur.com/VvPTmOd.jpeg"></p>
+</li>
+<li><p>在左側搜尋欄輸入「shell」並拖曳出「執行 Shell 指令」。<br> <img src="https://i.imgur.com/M0iF8Ai.png"></p>
+</li>
+<li><p>上方兩個下拉選單分別選擇「/bin/bash」、「作為引數」<br><img src="https://i.imgur.com/Sjo8BW2.png"></p>
+</li>
+<li><p>在指令區貼上下方指令，並替換上你的 API 金鑰：</p>
+<pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span>
+
+<span class="hljs-comment"># 替換為你的 Imgur API 金鑰</span>
+API_KEY=<span class="hljs-string">"替換為 API 金鑰"</span>
+
+<span class="hljs-comment"># 處理傳入的圖像檔案</span>
+<span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> <span class="hljs-string">"<span class="hljs-variable">$@</span>"</span>
+<span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 顯示通知</span>
+    osascript -e <span class="hljs-string">"display notification \"正在上傳到 Imgur\" with title \"上傳到 Imgur\""</span>
+
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"正在處理檔案: <span class="hljs-variable">$f</span>"</span>
+
+    <span class="hljs-comment"># 使用 curl 上傳圖像到 Imgur</span>
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"開始上傳到 Imgur..."</span>
+    response=$(curl -s -H <span class="hljs-string">"Authorization: Client-ID <span class="hljs-variable">$API_KEY</span>"</span> -F <span class="hljs-string">"image=@<span class="hljs-variable">$f</span>"</span> https://api.imgur.com/3/image)
+
+    <span class="hljs-comment"># 檢查是否成功上傳</span>
+    <span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$response</span> == *<span class="hljs-string">"success\":true"</span>* ]]; <span class="hljs-keyword">then</span>
+        <span class="hljs-comment"># 從回應中提取直接連結</span>
+        direct_link=$(<span class="hljs-built_in">echo</span> <span class="hljs-string">"<span class="hljs-variable">$response</span>"</span> | /usr/bin/python3 -c <span class="hljs-string">'import json,sys;print(json.load(sys.stdin)["data"]["link"])'</span>)
+
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"上傳成功！連結: <span class="hljs-variable">$direct_link</span>"</span>
+
+        <span class="hljs-comment"># 多種方法嘗試將連結複製到剪貼簿</span>
+        <span class="hljs-comment"># 方法1: 使用 pbcopy</span>
+        <span class="hljs-built_in">echo</span> -n <span class="hljs-string">"<span class="hljs-variable">$direct_link</span>"</span> | pbcopy
+
+        <span class="hljs-comment"># 方法2: 使用 osascript</span>
+        osascript -e <span class="hljs-string">"set the clipboard to \"<span class="hljs-variable">$direct_link</span>\""</span>
+
+        <span class="hljs-comment"># 方法3: 使用 Automator 變數傳遞</span>
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"<span class="hljs-variable">$direct_link</span>"</span> &gt; /tmp/imgur_link.txt
+
+        <span class="hljs-comment"># 顯示通知</span>
+        osascript -e <span class="hljs-string">"display notification \"<span class="hljs-variable">$direct_link</span> 已複製到剪貼簿\" with title \"Imgur 上傳成功\""</span>
+    <span class="hljs-keyword">else</span>
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"上傳失敗。回應: <span class="hljs-variable">$response</span>"</span>
+
+        <span class="hljs-comment"># 顯示通知</span>
+        osascript -e <span class="hljs-string">"display notification \"上傳失敗。回應: <span class="hljs-variable">$response</span>\" with title \"Imgur 上傳失敗\""</span>
+    <span class="hljs-keyword">fi</span>
+<span class="hljs-keyword">done</span>
+
+<span class="hljs-comment"># 輸出更詳細的資訊，方便排除問題</span>
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"************** 執行結果 **************"</span>
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"圖像已上傳到 Imgur"</span>
+
+<span class="hljs-keyword">if</span> [ -f <span class="hljs-string">"/tmp/imgur_link.txt"</span> ]; <span class="hljs-keyword">then</span>
+    final_link=$(<span class="hljs-built_in">cat</span> /tmp/imgur_link.txt)
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"連結: <span class="hljs-variable">$final_link</span>"</span>
+
+    <span class="hljs-comment"># 再次嘗試複製到剪貼簿</span>
+    <span class="hljs-built_in">echo</span> -n <span class="hljs-string">"<span class="hljs-variable">$final_link</span>"</span> | pbcopy
+
+    <span class="hljs-comment"># 在結束時輸出連結，這樣可以被 Automator 的「複製到剪貼簿」動作獲取</span>
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"<span class="hljs-variable">$final_link</span>"</span>
+<span class="hljs-keyword">else</span>
+    <span class="hljs-built_in">echo</span> <span class="hljs-string">"無法獲取上傳連結"</span>
+<span class="hljs-keyword">fi</span>
+
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"***************************************"</span></code></pre>
+</li>
+<li><p>存檔並命名為「Upload to Imgur」。</p>
+</li>
+<li><p>接著就可以對著圖片檔「點擊右鍵」&gt;「快速動作」&gt;「Upload to Imgur」複製圖片連結。<br><img src="https://i.imgur.com/Axqa1Ka.png"></p>
+</li>
+</ol>
+<hr>
+<p>如果有任何疑問或建議，歡迎來信詢問：<a href="mailto:sunyipingtw@icloud.com">sunyipingtw@icloud.com</a>。</p>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2025/03/01/2025-Zeroday-c00kie-winter-event/" title="高中職跨校資安社團 社團交流活動舉辦紀錄與心得"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: 高中職跨校資安社團 社團交流活動舉辦紀錄與心得</span></a><a class="button is-default" href="/2025/02/28/2025-wifi-security/" title="快速搞懂 Wi-Fi 安全協議：WEP、WPA、WPA2、WPA3"><span class="has-text-weight-semibold">Next: 快速搞懂 Wi-Fi 安全協議：WEP、WPA、WPA2、WPA3</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="1PingSun/1PingSun.github.io" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/1PingSun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><!-- 知乎--><!-- 领英--><!-- 脸书--><!-- Telegram--><a title="telegram" target="_blank" rel="noopener nofollow" href="//t.me/sunyiping"><i class="fab fa-telegram-plane"></i></a><!-- Signal--></section><p><span>Copyright ©</span><span> 1Ping 2025</span></p><div class="is-flex is-justify-content-center is-flex-wrap-wrap"><p>Powered by Hexo &verbar;&nbsp;</p><p class="is-flex is-justify-content-center"><a title="Hexo theme author" target="_blank" rel="noopener" href="//github.com/haojen">Theme by Haojen&nbsp;</a></p></div><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/jquery-3.6.1.min.js"></script><script src="/js/jquery-fancybox.min.js"></script><script src="/js/img_zoom.js"></script><script src="/js/post.js"></script></body></html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html><html class="appearance-auto" lang="en"><head><meta charset="UTF-8"><title>網頁快取利用之技術分析</title><meta name="description" content="孫逸平的個人部落格，分享資訊安全、創客專案、程式設計與技術心得。臺北市數位實驗高中學生，專精於網路安全、CTF競賽和技術開發。"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics 4 --><script async src="https://www.googletagmanager.com/gtag/js?id=G-DPPW3TCM0K"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DPPW3TCM0K');</script><!-- End Google Analytics -->
+<!-- Baidu Analytics --><!-- End Baidu Analytics --><link rel="icon" href="/img/favicon.ico"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><link rel="stylesheet" href="/style/common/jquery.fancybox.min.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="壹、摘要隨著 CDN 技術的普及，使網站的載入速度加快，並提供安全性的防護，但因其解析方式上的差異，也增加了攻擊者的攻擊面。本技術分析報告將針對 Martin Doyhenard 在 Black Hat 2024 的演講《Gotta Cache ‘em all: bending the rules of web cache exploitation》中提出的技術進行分析，並著重在 Web Cache Deception（網頁快取欺騙）。
+貳、分析動機為了增加伺服器的隱蔽性同時降低伺服器的壓力，我通常習慣為自己的網站掛上 Cloudflare 的免費 CDN 服務。本以為 CDN 能夠提高安全性，沒想到竟然也帶來了新的攻擊面。
+參、背景知識一、Web Cache有些靜態資源需要重複請求，但由於其資源之更換頻率.."><meta name="keywords" content="Web Cache Deception, WCD, 網頁快取欺騙, CDN, Cloudflare, 快取攻擊, Web Cache Poisoning, 網頁快取中毒, Black Hat 2024, Martin Doyhenard, URL解析, 路徑截斷, 分隔符號, 正規化, 靜態資源, 快取規則, PortSwigger, Burp Suite, CTF, 資安漏洞, 網站安全, 快取伺服器, 原始伺服器, Cache-Control, X-Cache, API Key洩漏, 敏感資料洩漏, robots.txt, favicon.ico, 路徑遍歷, 技術分析, 資安研究, post, blog, 1Ping, 孫逸平"><meta name="generator" content="Hexo 7.3.0">
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="1Ping's Blog" type="application/atom+xml">
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">1Ping's Blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">網頁快取利用之技術分析</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">Click back to the top</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">Home</a></h3><h3 class="is-inline-block"><a href="/about">About</a></h3><h3 class="is-inline-block"><a href="/archives">Archives</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A3%B9%E3%80%81%E6%91%98%E8%A6%81"><span class="toc-text">壹、摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B2%B3%E3%80%81%E5%88%86%E6%9E%90%E5%8B%95%E6%A9%9F"><span class="toc-text">貳、分析動機</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%83%E3%80%81%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AD%98"><span class="toc-text">參、背景知識</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Web-Cache"><span class="toc-text">一、Web Cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81CDN"><span class="toc-text">二、CDN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81Web-Cache-%E6%94%BB%E6%93%8A%E9%A1%9E%E5%9E%8B"><span class="toc-text">三、Web Cache 攻擊類型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%82%86%E3%80%81URL-%E7%9A%84%E8%A7%A3%E6%9E%90%E6%96%B9%E5%BC%8F"><span class="toc-text">肆、URL 的解析方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%88%86%E9%9A%94%E7%AC%A6%E8%99%9F"><span class="toc-text">一、分隔符號</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%AD%A3%E8%A6%8F%E5%8C%96"><span class="toc-text">二、正規化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%8D%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text">伍、漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%9D%9C%E6%85%8B%E5%89%AF%E6%AA%94%E5%90%8D"><span class="toc-text">一、靜態副檔名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%9D%9C%E6%85%8B%E8%B3%87%E6%BA%90"><span class="toc-text">二、靜態資源</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%B8%E3%80%81%E9%98%B2%E8%AD%B7%E6%96%B9%E5%BC%8F"><span class="toc-text">陸、防護方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%92%E3%80%81%E6%B7%B1%E5%85%A5%E5%AD%B8%E7%BF%92"><span class="toc-text">柒、深入學習</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81PortSwigger-Academy-Lab"><span class="toc-text">一、PortSwigger Academy Lab</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81CTF-%E5%87%BA%E9%A1%8C"><span class="toc-text">二、CTF 出題</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8D%8C%E3%80%81%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="toc-text">捌、參考資料</span></a></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/Cyber"><i class="tag post-item-tag">Cyber</i></a><a href="/tags/Note"><i class="tag post-item-tag">Note</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">網頁快取利用之技術分析</h1><time class="has-text-grey" datetime="2025-07-28T16:00:00.000Z">2025-07-29</time><article class="mt-2 post-content"><h2 id="壹、摘要"><a href="#壹、摘要" class="headerlink" title="壹、摘要"></a>壹、摘要</h2><p>隨著 CDN 技術的普及，使網站的載入速度加快，並提供安全性的防護，但因其解析方式上的差異，也增加了攻擊者的攻擊面。本技術分析報告將針對 Martin Doyhenard 在 Black Hat 2024 的演講《Gotta Cache ‘em all: bending the rules of web cache exploitation》中提出的技術進行分析，並著重在 Web Cache Deception（網頁快取欺騙）。</p>
+<h2 id="貳、分析動機"><a href="#貳、分析動機" class="headerlink" title="貳、分析動機"></a>貳、分析動機</h2><p>為了增加伺服器的隱蔽性同時降低伺服器的壓力，我通常習慣為自己的網站掛上 Cloudflare 的免費 CDN 服務。本以為 CDN 能夠提高安全性，沒想到竟然也帶來了新的攻擊面。</p>
+<h2 id="參、背景知識"><a href="#參、背景知識" class="headerlink" title="參、背景知識"></a>參、背景知識</h2><h3 id="一、Web-Cache"><a href="#一、Web-Cache" class="headerlink" title="一、Web Cache"></a>一、Web Cache</h3><p>有些靜態資源需要重複請求，但由於其資源之更換頻率低，因此不需要每次都請求原始伺服器，此時就可以將資源暫存在快取伺服器中。當客戶端請求資源時，就可以直接存取快取伺服器而不需要向原始伺服器再次請求資源。</p>
+<h3 id="二、CDN"><a href="#二、CDN" class="headerlink" title="二、CDN"></a>二、CDN</h3><p>CDN 全名 Content Delivery Network，是由分布在全球各地的伺服器節點組成，其主要目的是將資源暫存在距離使用者最近的伺服器以加快存取速度。同時因為其大量的節點，經常也會提供 DDoS 流量清洗、Web 防火牆（WAF）、SSL/TLS 加密等功能。</p>
+<h3 id="三、Web-Cache-攻擊類型"><a href="#三、Web-Cache-攻擊類型" class="headerlink" title="三、Web Cache 攻擊類型"></a>三、Web Cache 攻擊類型</h3><ul>
+<li><p>Web Cache Poisoning（網頁快取中毒）：攻擊者嘗試在快取中儲存惡意內容，當受害者嘗試存取網頁時，就會收到被污染的回應。</p>
+</li>
+<li><p>Web Cache Deception（網頁快取欺騙）：攻擊者透過一些技術，使受害者敏感資料被快取伺服器判定為靜態資源，從而將其儲存。接著，攻擊者再此存取相同資源即可取得受害者的敏感資料。</p>
+</li>
+</ul>
+<h2 id="肆、URL-的解析方式"><a href="#肆、URL-的解析方式" class="headerlink" title="肆、URL 的解析方式"></a>肆、URL 的解析方式</h2><p>為了能夠讓快取儲存不應該被儲存的靜態資源，可以透過 URL 解析方式的差異加以利用。以下為一個簡單的範例：</p>
+<ol>
+<li>CDN 會儲存路徑 <code>/assets</code> 下面的資源的所有請求。但不會進行正規化處理，因此 <code>/assets/../admin</code> 也會被認定為 <code>/assets</code> 中的資源。</li>
+<li>然而，原始伺服器收到請求後會進行正規化處理，回應 <code>/admin</code> 的資料。</li>
+<li>因此攻擊者僅需使受害者存取 <code>/assets/../admin</code>，接著再快取移除前存取相同的路徑，就能夠取得受害者的 <code>/admin</code> 頁面並取得敏感資料。</li>
+</ol>
+<h3 id="一、分隔符號"><a href="#一、分隔符號" class="headerlink" title="一、分隔符號"></a>一、分隔符號</h3><p>為了達到 URL 解析不一致的目的，可以嘗試使用不同的分隔符號，觀察快取伺服器及原始伺服器如何解析。例如：快取伺服器可能預設不會對任何分隔符號進行截斷，但原始伺服器遇到分號 <code>;</code> 則會將其截斷，因此當請求 <code>/admin;style.css</code> 時，快取伺服器就會將管理者頁面的回應判斷成靜態資源 CSS 檔並將其儲存。</p>
+<p>常見的分隔符號有：<code>;</code>、<code>#</code>、<code>?</code> 等。在進行測試時，可參考 PortSwigger 提供的<a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list">分隔符號列表</a>。若使用 BurpSuite 的 Intruder，要記得將 URL 編碼取消勾選。</p>
+<p><img src="/posts/2025-WCD/image.webp" alt="alt text"></p>
+<h3 id="二、正規化"><a href="#二、正規化" class="headerlink" title="二、正規化"></a>二、正規化</h3><p>遇到 <code>../</code> 時，有些伺服器會回到父路徑，有些則不會，因此可透過正規化的差異進行網頁快取的利用。例如：在向不會進行正規化的快取伺服器請求 <code>/static/../admin</code> 時，快取伺服器會將其認定為靜態資源，然而原始伺服器會將其解析成 <code>/admin</code>，造成正規化的不一致。</p>
+<p>以下是常見的 CDN 及原始伺服器對於 <code>/static/..%2fadmin</code> 請求的解析結果。</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+
+<div>
+
+<table>
+<thead>
+<tr>
+<th>CDN提供商</th>
+<th>解析結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CloudFlare</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+<tr>
+<td>CloudFront</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>GCP</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>Imperva</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>Fastly</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+</tbody></table>
+</div>
+
+<div>
+
+<table>
+<thead>
+<tr>
+<th>原始伺服器</th>
+<th>解析結果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Apache</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>IIS</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>Gunicore</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+<tr>
+<td>OpenLite</td>
+<td><code>/admin</code></td>
+</tr>
+<tr>
+<td>Puma</td>
+<td><code>/static/..%2fadmin</code></td>
+</tr>
+</tbody></table>
+</div>
+
+</div>
+
+<h2 id="伍、漏洞利用"><a href="#伍、漏洞利用" class="headerlink" title="伍、漏洞利用"></a>伍、漏洞利用</h2><h3 id="一、靜態副檔名"><a href="#一、靜態副檔名" class="headerlink" title="一、靜態副檔名"></a>一、靜態副檔名</h3><p>有許多 CDN 提供商或快取伺服器都會儲存具有靜態副檔名的資源，如果請求路徑的結尾為 <code>.js</code> 或 <code>.css</code> 等，就會被視為靜態資源儲存。以下提供一個範例：</p>
+<ul>
+<li>瀏覽器請求資源 <code>/admim%23a.css</code></li>
+<li>快取伺服器偵測到結尾為 <code>.css</code> 因此將其判定為靜態資源</li>
+<li>原始伺服器將 <code>%23</code> 解析為 <code>#</code>，回應資源 <code>/admin</code></li>
+<li>攻擊者可誘使受害者存取 <code>/admin%23a.css</code>，隨後立即存取 <code>/admin</code>，就能夠取得受害者的 <code>/admin</code> 頁面。</li>
+</ul>
+<p><strong>INFO</strong></p>
+<p>關於 Cloudflare CDN 預設的靜態副檔名請見官方文件：<a target="_blank" rel="noopener" href="https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#default-cached-file-extensions">https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#default-cached-file-extensions</a></p>
+<h3 id="二、靜態資源"><a href="#二、靜態資源" class="headerlink" title="二、靜態資源"></a>二、靜態資源</h3><p>一些常見的路徑下通常只會儲存靜態資源，此時也可透過這點搭配分隔符號或正規化的差異進行利用。常見的靜態目錄包含：</p>
+<ul>
+<li><code>/static</code></li>
+<li><code>/assets</code></li>
+<li><code>/wp-content</code></li>
+<li><code>/media</code></li>
+<li><code>/templates</code></li>
+</ul>
+<p>除了靜態目錄外，也有一些特定的檔案不在上述的靜態目錄中，但其變更的次數並不頻繁。包含：<code>robots.txt</code> 及 <code>favicon.ico</code> 等。</p>
+<h2 id="陸、防護方式"><a href="#陸、防護方式" class="headerlink" title="陸、防護方式"></a>陸、防護方式</h2><p>身為一個網站開發者，可以透過以下常見方式避免網頁快取欺騙攻擊：</p>
+<ol>
+<li>將 Cache Header 設定為 <code>no-store</code>、<code>private</code>。</li>
+<li>確保 CDN 和原始伺服器的快取規則相同。</li>
+</ol>
+<h2 id="柒、深入學習"><a href="#柒、深入學習" class="headerlink" title="柒、深入學習"></a>柒、深入學習</h2><h3 id="一、PortSwigger-Academy-Lab"><a href="#一、PortSwigger-Academy-Lab" class="headerlink" title="一、PortSwigger Academy Lab"></a>一、PortSwigger Academy Lab</h3><p><img src="/posts/2025-WCD/image2.webp" alt="alt"></p>
+<p>為了能夠深入了解漏洞之原理及利用方式，我嘗試完成 PortSwigger Academy 中 Web cache deception 主題的所有 Lab 並撰寫 Writeup。Writeup 如下：</p>
+<p><strong>Lab: <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/lab-wcd-exploiting-path-mapping">Exploiting path mapping for web cache deception</a></strong></p>
+<ol>
+<li>偵查目標<ol>
+<li>使用帳號 <code>wiener</code>、密碼 <code>peter</code> 登入。</li>
+<li>發現回應包含 API key</li>
+</ol>
+</li>
+<li>辨識路徑解析不一致<ol>
+<li>發送 <code>/my-account/abc</code> 路徑的請求，發現回應資料仍然包含你的 API Key，表示原始伺服器將其解析成 <code>/my-account</code>。</li>
+<li>在 URL 路徑加上副檔名，例如：<code>/my-account/abc.js</code>，接著發送請求。發現回應包含 <code>X-Cache: miss</code>（表示回應不是從快取提供）和 <code>Cache-Control: max-age=30</code>（表示會被儲存 30 秒）表頭。</li>
+<li>在 30 秒內重新傳送請求，發現表頭 <code>X-Cache</code> 的數字變成 <code>hit</code>，表示回應資料來自快取。由此可以推斷快取解釋 URL 路徑為 <code>/my-account/abc.js</code> 並符合 <code>.js</code> 副檔名的快取規則。所以可以使用這個 payload 進行利用。</li>
+</ol>
+</li>
+<li>進行漏洞利用<ol>
+<li>在網站中點擊 <strong>Go to exploit server</strong></li>
+<li>在 <strong>Body</strong> 部分讓受害者（<code>carlos</code>）跳轉到你製作的惡意 URL。需注意應修改路徑後方的參數，以避免受害者存取到你之前存取的快取回應。<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">location</span>=<span class="hljs-string">"https://YOUR-LAB-ID.web-security-academy.net/my-account/wcd.js"</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre></li>
+<li>點擊 <strong>Deliver exploit to victim</strong>。當受害者存取該 URL，回應會儲存在快取。</li>
+<li>前往提供給受害者（<code>carlos</code>）存取的路徑（<code>https://YOUR-LAB-ID.web-security-academy.net/my-account/wcd.js</code>），就可以看到 <code>carlos</code> 的 API Key 了。</li>
+</ol>
+</li>
+</ol>
+<p><strong>Lab: <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/lab-wcd-exploiting-path-delimiters">Exploiting path delimiters for web cache deception</a></strong></p>
+<ol>
+<li>偵查：使用 Burp Intruder 嘗試不同分隔字元，判斷原始伺服器會解析哪些分隔符號<ol>
+<li>將請求傳送到 Intruder</li>
+<li>加上參數<br>  <img src="https://i.imgur.com/5fC2ACc.png"></li>
+<li>將 <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list">Web cache deception lab delimiter list</a> 中的字元貼上到 payload 的地方</li>
+<li>取消勾選 URL-encode these characters 選項</li>
+<li>點擊 Start attack 完成攻擊後，會發現只有字元 <code>?</code> 和 <code>;</code> 回應 200，其他都是 404</li>
+</ol>
+</li>
+<li>偵查：判斷是否會被快取儲存<ol>
+<li>使用 <code>?</code> 字元作為分隔符號會發現 header 沒有快取的痕跡<br><img src="https://i.imgur.com/ODpYO8i.jpeg"></li>
+<li>使用 <code>;</code> 字元作為分隔符號連續請求兩次，發現 header 有被快取儲存的跡象<br><img src="https://i.imgur.com/eMDME6l.jpeg"><br><img src="https://i.imgur.com/GPkMfy8.jpeg"></li>
+</ol>
+</li>
+<li>漏洞利用<ol>
+<li>在 Go to exploit server 的 body 撰寫 payload<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">location</span>=<span class="hljs-string">"https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js"</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre></li>
+<li>接著前往路徑 <code>https://YOUR-LAB-ID.web-security-academy.net/my-account;wcd.js</code> 就可以拿到受害者的 API key 了！</li>
+</ol>
+</li>
+</ol>
+<p><strong>Lab: <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/lab-wcd-exploiting-origin-server-normalization">Exploiting origin server normalization for web cache deception</a></strong></p>
+<ol>
+<li>偵查原始伺服器標準化<ol>
+<li>前往路徑 <code>/my-account</code>，會回傳個人資料頁面並顯示 API Key</li>
+<li>前往路徑 <code>/aaa/..%2fmy-account</code> 仍成功回傳個人資料頁面並顯示 API Key，且路徑列顯示 <code>/aaa/..%2fmy-account</code>，表示原始伺服器會解析 <code>%2f</code>。</li>
+</ol>
+</li>
+<li>偵查快取伺服器標準化<ol>
+<li>尋找一個正確的靜態資源並確保其有被快取，這裡選擇：<code>/resources/labheader/js/labHeader.js</code></li>
+<li>前往路徑 <code>/aaa/..%2fresources/labheader/js/labHeader.js</code> 發現快取並不會將其儲存</li>
+<li>判斷快取伺服器不會解析 <code>%2f</code> 且快取規則包含開頭為靜態資源路徑之規則</li>
+</ol>
+</li>
+<li>利用<ol>
+<li>製作 Payload：<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>=<span class="hljs-string">"https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account"</span>;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre></li>
+<li>將其傳送給受害者後攻擊者再次前往路徑 <code>https://YOUR-LAB-ID.web-security-academy.net/resources/..%2fmy-account</code> 即可得到受害者的 API Key</li>
+</ol>
+</li>
+</ol>
+<p><strong>Lab: <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/lab-wcd-exploiting-cache-server-normalization">Exploiting cache server normalization for web cache deception</a></strong></p>
+<ol>
+<li>偵查原始伺服器解析的路徑分隔符號<ol>
+<li>使用 <strong>Intruder</strong> 發送請求</li>
+<li>Payload 使用 <code>/my-account§§abc</code></li>
+<li>分隔符號參數可參考 <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/wcd-lab-delimiter-list">Web cache deception lab delimiter list</a></li>
+<li>發現 <code>#</code>、<code>?</code>、<code>%23</code>、<code>%3f</code> 回應狀態碼 <code>200</code>。但 <code>#</code> 不可使用，因為會在請求前就被瀏覽器當作分隔符號。</li>
+</ol>
+</li>
+<li>偵查標準化不一致<ol>
+<li>對路徑 <code>/aaa/..%2fmy-account</code> 請求，回應狀態碼 <code>404</code>，表示原始伺服器不會解析 <code>..%2f</code></li>
+<li>使用 Payload <code>/aaa/..%2fresources/YOUR-RESOURCE</code> 發現會被快取，表示快取會解析 <code>..%2f</code> 且快取規則匹配開頭為 <code>/resources</code> 的請求</li>
+</ol>
+</li>
+<li>漏洞利用<ol>
+<li>使用 Payload：<code>/my-account%23%2f%2e%2e%2fresources?wcd</code><ul>
+<li>原始伺服器將會解析分隔符號 <code>%23</code>，並將路徑解析為 <code>/my-account</code> 回應 API Key</li>
+<li>快取伺服器會解析 <code>..%2f</code>，所以將路徑解析為 <code>/resources</code> 並將回應儲存在快取</li>
+</ul>
+</li>
+<li>製作 Payload 並發送給受害者，接著攻擊者再次存取即可獲得受害者的 API Key<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>=<span class="hljs-string">"https://0a2800ef0485f50b8033ad7a00b0005f.web-security-academy.net/my-account%23%2f%2e%2e%2fresources?wcd"</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre></li>
+</ol>
+</li>
+</ol>
+<p><strong>Lab: <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception/lab-wcd-exploiting-exact-match-cache-rules">Exploiting exact-match cache rules for web cache deception</a></strong></p>
+<ol>
+<li>偵查快取伺服器檔案名稱快取規則<ol>
+<li>前往路徑 <code>/robots.txt</code> 發現會被快取</li>
+</ol>
+</li>
+<li>偵查分隔符號不一致<ol>
+<li>前往路徑 <code>/robots.txt;aaa</code> 發現會回應 <code>robots.txt</code> 的內容，但不會被快取，表示快取伺服器不會解析 <code>;</code>，但原始伺服器會解析。</li>
+</ol>
+</li>
+<li>嘗試漏洞利用<ol>
+<li>前往 <code>https://0ae5006803083ae3a2794be300d00087.web-security-academy.net/my-account;%2f%2e%2e%2frobots.txt</code></li>
+<li>發現回應個人資料頁面，但不會被快取，表示：<ul>
+<li>原始伺服器將 <code>;</code> 解析為分隔符號</li>
+<li>快取伺服器不會解析 <code>;</code></li>
+<li>快取伺服器會解析路徑遍歷部分 <code>%2f%2e%2e%2</code>，並將此請求解析為 <code>/robots.txt</code></li>
+</ul>
+</li>
+<li>發送 Payload 給受害者：<pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">document</span>.<span class="hljs-property">location</span>=<span class="hljs-string">"https://0ae5006803083ae3a2794be300d00087.web-security-academy.net/my-account;%2f%2e%2e%2frobots.txt?wcd"</span></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre></li>
+<li>使用 <strong>Repeater</strong> 將原本的 <code>/my-account</code> 請求修改成路徑 <code>/my-account;%2f%2e%2e%2frobots.txt?wcd</code> 並發送請求</li>
+<li>將回應被快取的 administrator 使用者個人資料頁面，並在當中找到 csrf 值</li>
+</ol>
+</li>
+</ol>
+<h3 id="二、CTF-出題"><a href="#二、CTF-出題" class="headerlink" title="二、CTF 出題"></a>二、CTF 出題</h3><p>在完成 PortSwigger Academy Lab 的過程中，我發現關於 Web Cache Deception 的 CTF 題目均圍繞著快取伺服器和原始伺服器的解析方式差異。因此我想嘗試寫一個能夠自定義解析規則的快取伺服器，讓出題者能夠快速的設計 CTF 題目。但由於時間關係，目前只完成初步的計畫，後續更新請見 GitHub 專案：<a target="_blank" rel="noopener" href="https://github.com/1PingSun/Custom-Cache-Server-for-WCD">https://github.com/1PingSun/Custom-Cache-Server-for-WCD</a>。</p>
+<h2 id="捌、參考資料"><a href="#捌、參考資料" class="headerlink" title="捌、參考資料"></a>捌、參考資料</h2><ol>
+<li>Black Hat（2025 年 2 月 8 日）。Gotta Cache Em All: Bending the Rules of Web Cache Exploitation。YouTube。<a target="_blank" rel="noopener" href="https://youtu.be/9gvxEhugnVM">https://youtu.be/9gvxEhugnVM</a></li>
+<li>1PingSun（無日期）。網頁快取詐欺（Web Cache Deception）。PortSwigger Academy 翻譯。2025 年 7 月 27 日，取自 <a target="_blank" rel="noopener" href="https://web-security.1ping.org/Server-side/Web_Cache_Deception.html">https://web-security.1ping.org/Server-side/Web_Cache_Deception.html</a></li>
+<li>PortSwigger（無日期）。Web cache deception。PortSwigger Web Security Academy。2025 年 7 月 27 日，取自 <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/web-cache-deception">https://portswigger.net/web-security/web-cache-deception</a></li>
+</ol>
+</article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><a class="button is-default" href="/2025/07/28/2025-Apache-Confusion-Attacks/" title="Apache HTTP Server Confusion Attacks 之技術分析"><i class="iconfont icon-prev mr-2 has-text-grey"></i><span class="has-text-weight-semibold">Previous: Apache HTTP Server Confusion Attacks 之技術分析</span></a><a class="button is-default" href="/2025/07/02/2025-AIS3-PreExam-MyFirstCTF-Writeup/" title="2025 AIS3 Pre-Exam &amp; MyFirstCTF 心得 / Writeup"><span class="has-text-weight-semibold">Next: 2025 AIS3 Pre-Exam &amp; MyFirstCTF 心得 / Writeup</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section><article class="mt-6 comment-container"><script async repo="1PingSun/1PingSun.github.io" src="https://utteranc.es/client.js" issue-term="pathname" theme="preferred-color-scheme"></script></article></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/1PingSun"><i class="iconfont icon-github"></i></a><!-- Ins--><!-- RSS--><!-- 知乎--><!-- 领英--><!-- 脸书--><!-- Telegram--><a title="telegram" target="_blank" rel="noopener nofollow" href="//t.me/sunyiping"><i class="fab fa-telegram-plane"></i></a><!-- Signal--></section><p><span>Copyright ©</span><span> 1Ping 2025</span></p><div class="is-flex is-justify-content-center is-flex-wrap-wrap"><p>Powered by Hexo &verbar;&nbsp;</p><p class="is-flex is-justify-content-center"><a title="Hexo theme author" target="_blank" rel="noopener" href="//github.com/haojen">Theme by Haojen&nbsp;</a></p></div><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/jquery-3.6.1.min.js"></script><script src="/js/jquery-fancybox.min.js"></script><script src="/js/img_zoom.js"></script><script src="/js/post.js"></script></body></html>
