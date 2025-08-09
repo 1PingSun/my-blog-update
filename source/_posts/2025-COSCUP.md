@@ -1,4 +1,10 @@
-# COSCUP 2025 心得
+---
+title: COSCUP 2025 心得
+date: 2025-08-09
+keywords: COSCUP, COSCUP 2025, 開源人年會, 中文開源軟體聯盟, 開源軟體, Open Source, 研討會, 技術演講, HackMaster Pi, 樹莓派, Raspberry Pi, 物聯網, IoT, 駭客工具, 資安工具, 開源專案, GitHub, HITCON, SITCON, ZeroDay C00kie, 零日餅乾社, 議程組, 志工, 協調人, 講者, Framework 筆電, 模組化電腦, 前夜派對, 台北, 台大, 心得分享, 演講經驗, 技術分享, 社群活動
+tag:
+    - Event
+---
 
 現在時間是 2025 年 8 月 9 日，也就是 COSCUP 的 Day 1，但因為我明天人在台南，所以我的 COSCUP 已經結束了～
 
