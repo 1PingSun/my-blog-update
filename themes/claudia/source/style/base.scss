@@ -13,7 +13,7 @@
     a {
       color: inherit;
 
-      &:hover, &:hover .iconfont {
+      &:hover, &:hover .iconfont, &:hover .fab, &:hover .fas, &:hover .far {
         text-decoration: none;
         color: $activeColor!important;
       }
@@ -51,6 +51,11 @@
       border-top: 1px solid rgba(0, 0, 0, 0.05);
 
       .sns-container .iconfont {
+        margin: 0 5px;
+        font-size: 30px;
+      }
+
+      .sns-container .fab, .sns-container .fas, .sns-container .far {
         margin: 0 5px;
         font-size: 30px;
       }
